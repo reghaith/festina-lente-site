@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festina Lente - The Art of Making Haste Slowly</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;500&display=swap');
+
+        :root {
+            --deep-navy: #0A192F;
+            --gold: #FFD700;
+            --light-gold: #FFEEB3;
+            --slate: #8892B0;
+            --light-slate: #CCD6F6;
+            --white: #E6F1FF;
+            --card-navy: #112240;
+        }
+
+        /* --- Global Reset & Setup --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--deep-navy);
+            color: var(--slate);
+            overflow-x: hidden;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        body::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        main {
+            width: 100%;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+        }
+
+        section {
+            width: 100vw;
+            height: 100vh;
+            padding: 100px 10%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            scroll-snap-align: start;
+            position: relative;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 4rem; line-height: 1.2; }
+        h2 { font-size: 2.5rem; }
+        p { line-height: 1.6; max-width: 600px; }
+
+        /* --- Fixed Navbar --- */
+        #navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: rgba(10, 25, 47, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid var(--card-navy);
+        }
+
+        #navbar .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #navbar nav a {
+            color: var(--light-slate);
+            text-decoration: none;
+            margin: 0 1rem;
+            transition: color 0.3s;
+        }
+
+        #navbar nav a:hover {
+            color: var(--gold);
+        }
+
+        /* --- Buttons --- */
+        .cta-button {
+            background-color: transparent;
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+            margin-top: 2rem;
+        }
+
+        .cta-button:hover {
+            background-color: var(--gold);
+            color: var(--deep-navy);
+        }
+
+        .bottom-cta {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* --- Section 0: Hero --- */
+        #hero h1 {
+            margin-bottom: 2rem;
+        }
+        .hero-coin {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            margin-bottom: 2rem;
+        }
+        #hero .quote {
+            font-style: italic;
+            color: var(--light-slate);
+        }
+
+        /* --- Section 1: Meaning --- */
+        #meaning .content-wrapper {
+            width: 100%;
+            max-width: 1200px;
+        }
+        #meaning h2 {
+            text-align: left;
+        }
+        .definition-box {
+            background-color: var(--card-navy);
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: left;
+            margin: 2rem 0;
+            border-left: 4px solid var(--gold);
+        }
+        .modern-carousel {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            justify-content: center;
+        }
+        .carousel-card {
+            background-color: var(--card-navy);
+            padding: 1.5rem;
+            border-radius: 8px;
+            min-width: 250px;
+        }
+        .momentum-checker {
+            margin-top: 2rem;
+        }
+        #momentum-slider {
+            width: 100%;
+            max-width: 500px;
+        }
+        .divider-button {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background-color: var(--gold);
+            color: var(--deep-navy);
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* --- Section 2: History --- */
+        #history {
+            justify-content: flex-start; /* Align content to the top */
+            padding-top: 120px; /* More space for the fixed navbar */
+            height: auto;
+            min-height: 100vh;
+        }
+        .timeline {
+            width: 100%;
+            max-width: 800px;
+        }
+        .timeline-item {
+            background-color: var(--card-navy);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            text-align: left;
+        }
+        .timeline-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid var(--gold);
+        }
+
+        /* --- Section 3: Symbol Lab --- */
+        .symbol-lab-container {
+            display: flex;
+            gap: 5rem;
+            align-items: center;
+            justify-content: center;
+        }
+        .symbol-container {
+            cursor: pointer;
+        }
+        .symbol-container img {
+            width: 150px;
+            height: 150px;
+            filter: invert(80%) sepia(100%) saturate(400%) hue-rotate(350deg); /* Gold-like effect */
+            transition: transform 0.3s;
+        }
+        .symbol-container:hover img {
+            transform: scale(1.1);
+        }
+        #merge-result-container {
+            margin-top: 2rem;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        #merged-symbol {
+            width: 200px;
+        }
+
+        /* --- Section 4: Character Cards --- */
+        .advocates-container {
+            display: flex;
+            gap: 2rem;
+            perspective: 1000px;
+        }
+        .card-flip {
+            width: 280px;
+            height: 350px;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .card-flip:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            background-color: var(--card-navy);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .card-front img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--gold);
+            margin-bottom: 1rem;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* --- Section 5: Quiz --- */
+        .quiz-container {
+            background-color: var(--card-navy);
+            padding: 2rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .question {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .question p {
+            margin-bottom: 0.5rem;
+        }
+        .question label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        #calculate-quiz {
+            background-color: var(--gold);
+            color: var(--deep-navy);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        /* --- Section 6: Gallery --- */
+        .gallery-container {
+            width: 100%;
+            height: 500px; /* Increased height for better view */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .gallery-item-center {
+            width: 250px;
+            height: 250px;
+            z-index: 20;
+            border-radius: 8px;
+        }
+        .gallery-item-center img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .carousel-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            perspective: 2500px;
+        }
+        .carousel {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: carousel-spin 40s infinite linear;
+        }
+        .carousel-item {
+            position: absolute;
+            top: 125px; /* (500px - 250px) / 2 */
+            left: calc(50% - 125px); /* (container_width - item_width) / 2 */
+            width: 250px;
+            height: 250px;
+        }
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid var(--light-gold);
+            filter: brightness(0.8);
+        }
+        @keyframes carousel-spin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        /* --- Section 7: Outro --- */
+        #outro {
+            background-color: #000;
+        }
+        #star-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        #outro h2, #outro p, #outro .cta-button {
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="navbar">
+        <div class="logo">
+            <!-- Placeholder for Dolphin/Anchor Icon -->
+            <span class="logo-icon">♆</span> FESTINA LENTE
+        </div>
+        <nav>
+            <a href="#hero">Home</a>
+            <a href="#meaning">Meaning</a>
+            <a href="#history">History</a>
+            <a href="#quiz">Quiz</a>
+        </nav>
+    </header>
+
+    <main id="page-container">
+
+        <!-- Section 0: Hero -->
+        <section id="hero">
+            <h1>THE ART OF MAKING HASTE SLOWLY</h1>
+            <img src="https://c8.alamy.com/comp/B3KC3E/ancient-roman-coin-augustus-63bc-14ad-B3KC3E.jpg" alt="Ancient Roman Denarius Coin" class="hero-coin">
+            <p class="quote">"Festina Lente." – <em>Emperor Augustus</em></p>
+            <button class="cta-button" data-scroll-to="meaning">Uncover the Paradox</button>
+        </section>
+
+        <!-- Section 1: Meaning -->
+        <section id="meaning">
+            <div class="content-wrapper">
+                <h2>The Balanced Axiom</h2>
+                <div class="definition-box">
+                    <p><strong>Translation:</strong> Make haste slowly.</p>
+                    <p><strong>Meaning:</strong> Optimal efficiency is achieved by applying diligence (haste) tempered by prudence and deliberation (slowly).</p>
+                </div>
+                <div class="modern-carousel">
+                    <div class="carousel-card">
+                        <h3>Business</h3>
+                        <p>Rapid Innovation, Calculated Risk.</p>
+                    </div>
+                    <div class="carousel-card">
+                        <h3>Personal</h3>
+                        <p>Mindful Speed, Not Rushing.</p>
+                    </div>
+                    <div class="carousel-card">
+                        <h3>Design</h3>
+                        <p>Swift Execution, Thoughtful Detail.</p>
+                    </div>
+                </div>
+                <div class="momentum-checker">
+                    <h3>Momentum Check</h3>
+                    <input type="range" id="momentum-slider" min="0" max="100" value="50">
+                    <div id="momentum-feedback"></div>
+                </div>
+            </div>
+            <button class="divider-button" data-scroll-to="history">Explore Origins</button>
+        </section>
+
+        <!-- Section 2: History -->
+        <section id="history">
+            <h2>Anchors in Time: Key Eras</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    
+                    <div class="timeline-content">
+                        <h3>Classical Philosophy</h3>
+                        <p>The concept’s philosophical roots in Greece, focusing on strategy and morality.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <img src="https://www.voyista.com/photos/rome-colosseum-1-pex.jpg" alt="Roman Empire Landmark">
+                    <div class="timeline-content">
+                        <h3>Imperial Decree</h3>
+                        <p>Emperor Augustus adopts the phrase as his personal motto, demanding deliberative speed from his military and government.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <img src="https://thumbs.dreamstime.com/b/vintage-library-room-too-leather-armchairs-bookshelves-full-historic-books-classic-literature-generative-ai-310539752.jpg" alt="Historic Library with Old Books">
+                    <div class="timeline-content">
+                        <h3>The Printer’s Mark</h3>
+                        <p>Aldus Manutius adopts the dolphin and anchor for his printing press, symbolizing the balance of speed and scholarly accuracy.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="cta-button bottom-cta" data-scroll-to="characters">Meet the Advocates</button>
+        </section>
+
+        <!-- Section 4: Character Cards -->
+        <section id="characters">
+            <h2>The Advocates of Balance</h2>
+            <div class="advocates-container">
+                <div class="card-flip">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <img src="https://www.artnews.com/wp-content/uploads/2021/04/179436058_2920204494900661_7774149682814846899_n.jpg?w=1000&h=750&crop=1" alt="Augustus Marble Bust">
+                            <h3>Emperor Augustus</h3>
+                        </div>
+                        <div class="card-back">
+                            <h3>Balanced Rule</h3>
+                            <p>Used the motto to counsel generals against unnecessary risk.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-flip">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <img src="https://th-thumbnailer.cdn-si-edu.com/MC4SB5h1-iwnbco41_Z0HMPlYOA=/fit-in/1200x0/filters:focal(520x214:521x215)/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer/59/6a/596a34db-8feb-40fc-87a8-48cbae59231e/sqj_1510_venice_aldus_03-web-resize.jpg" alt="Aldus Manutius Portrait">
+                            <h3>Aldus Manutius</h3>
+                        </div>
+                        <div class="card-back">
+                            <h3>Quality in Print</h3>
+                            <p>Symbolized publishing books quickly while maintaining scholarly accuracy.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-flip">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <img src="https://media.istockphoto.com/id/1807993751/photo/plato-statue-close-up.jpg?s=612x612&w=0&k=20&c=CkVbp7UdmvfDpttA70eCpJ6Pe_wNrDWkbRWxfPCgve4=" alt="Plato Bust">
+                            <h3>Ancient Philosophers</h3>
+                        </div>
+                        <div class="card-back">
+                            <h3>Personal Discipline</h3>
+                            <p>To live life energetically, but with thoughtful moral consideration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="cta-button" data-scroll-to="quiz">Test Your Balance</button>
+        </section>
+
+        <!-- Section 5: Mini-Quiz -->
+        <section id="quiz">
+            <h2>Your Personal Balance Test</h2>
+            <div class="quiz-container">
+                <div class="question">
+                    <p>1. When facing a complex decision, your default is to:</p>
+                    <label><input type="radio" name="q1" value="dolphin"> Start immediately and adjust later.</label>
+                    <label><input type="radio" name="q1" value="anchor"> Research extensively before taking the first step.</label>
+                </div>
+                <div class="question">
+                    <p>2. Your preferred work style is:</p>
+                    <label><input type="radio" name="q2" value="anchor"> Methodical, structured, and detail-oriented.</label>
+                    <label><input type="radio" name="q2" value="dolphin"> Fast-paced, adaptable, and innovative.</label>
+                </div>
+                <div class="question">
+                    <p>3. In an emergency, you tend to:</p>
+                    <label><input type="radio" name="q3" value="dolphin"> Act quickly and instinctively.</label>
+                    <label><input type="radio" name="q3" value="anchor"> Pause briefly to assess the critical steps.</label>
+                </div>
+                <button id="calculate-quiz">Calculate Your Score</button>
+                <div id="quiz-result"></div>
+            </div>
+            <button class="cta-button" data-scroll-to="gallery">View Emblem Gallery</button>
+        </section>
+
+        <!-- Section 6: Symbol Gallery -->
+        <section id="gallery">
+            <h2>Festina Lente Gallery</h2>
+            <div class="gallery-container">
+                <div class="gallery-item-center">
+                </div>
+                <div class="carousel-wrapper">
+                    <div class="carousel">
+                        <div class="carousel-item"><img src="https://www.gutenberg.org/files/50006/50006-h/images/img015.jpg" alt="Historical butterfly and crab Festina Lente emblem"></div>
+                        <div class="carousel-item"><img src="https://www.gutenberg.org/cache/epub/50006/images/img050.jpg" alt="Crowned salamander in flames emblem"></div>
+                        <div class="carousel-item"><img src="https://brill.com/display/book/edcoll/9789004367593/9789004367593_webready_content_m00006.jpg" alt="Hieroglyphic emblem with symbolic objects"></div>
+                        <div class="carousel-item"><img src="https://www.gutenberg.org/files/25663/25663-h/images/pic47.png" alt="Nautical ship and mermaids printers' mark"></div>
+                        <div class="carousel-item"><img src="https://www.gutenberg.org/files/50006/50006-h/images/img101.jpg" alt="Ostrich with stone emblem"></div>
+                        <div class="carousel-item"><img src="https://www.gutenberg.org/cache/epub/50006/images/img071.jpg" alt="Comet with ribbon emblem"></div>
+                        <div class="carousel-item"><img src="https://brill.com/display/book/edcoll/9789004367593/9789004367593_webready_content_m00007.jpg" alt="Symbolic tools and animals hieroglyph"></div>
+                        <div class="carousel-item"><img src="https://brill.com/display/book/edcoll/9789004367593/9789004367593_webready_content_m00119.jpg" alt="Bear licking cub emblem"></div>
+                        <div class="carousel-item"><img src="https://brill.com/edcollchap/book/9789004680562/9789004680562_webready_content_m00138.jpg" alt="Hand-colored Renaissance emblem book page"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="cta-button" data-scroll-to="outro">Final Contemplation</button>
+        </section>
+
+        <!-- Section 7: Outro -->
+        <section id="outro">
+            <canvas id="star-particles"></canvas>
+            <h2>ACT WITH BALANCED HASTE</h2>
+            <p>In every endeavor, find your center. Be quick to plan, slow to err.</p>
+            <button class="cta-button">Share the Wisdom</button>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Smooth Scrolling for Nav & CTA Buttons ---
+            document.querySelectorAll('a[href^="#"], button[data-scroll-to]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href') ? this.getAttribute('href').substring(1) : this.getAttribute('data-scroll-to');
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // --- Section 1: Momentum Check Slider ---
+            const momentumSlider = document.getElementById('momentum-slider');
+            const momentumFeedback = document.getElementById('momentum-feedback');
+            if (momentumSlider && momentumFeedback) {
+                const updateMomentum = () => {
+                    const value = momentumSlider.value;
+                    let feedbackText = '';
+                    let color = '';
+
+                    if (value < 30) {
+                        feedbackText = 'Too Slow';
+                        color = '#ff4d4d'; // Red
+                    } else if (value > 70) {
+                        feedbackText = 'Too Fast';
+                        color = '#4d94ff'; // Blue
+                    } else {
+                        feedbackText = 'Balanced';
+                        color = 'var(--gold)'; // Gold
+                    }
+                    momentumFeedback.textContent = feedbackText;
+                    momentumFeedback.style.width = `${value}%`;
+                    momentumFeedback.style.backgroundColor = color;
+                };
+                momentumSlider.addEventListener('input', updateMomentum);
+                updateMomentum(); // Initial call
+            }
+            
+            // --- Section 3: Symbol Lab ---
+            const dolphinContainer = document.getElementById('dolphin-container');
+            const anchorContainer = document.getElementById('anchor-container');
+            const mergeResult = document.getElementById('merge-result-container');
+            let dolphinClicked = false;
+            let anchorClicked = false;
+
+            if (dolphinContainer && anchorContainer && mergeResult) {
+                dolphinContainer.addEventListener('click', () => {
+                    dolphinClicked = !dolphinClicked;
+                    dolphinContainer.classList.toggle('selected');
+                    checkMerge();
+                });
+
+                anchorContainer.addEventListener('click', () => {
+                    anchorClicked = !anchorClicked;
+                    anchorContainer.classList.toggle('selected');
+                    checkMerge();
+                });
+
+                const checkMerge = () => {
+                    if (dolphinClicked && anchorClicked) {
+                        mergeResult.style.opacity = '1';
+                    } else {
+                        mergeResult.style.opacity = '0';
+                    }
+                };
+            }
+
+            // --- Section 4: Character Cards ---
+            document.querySelectorAll('.card-flip').forEach(card => {
+                card.addEventListener('click', () => {
+                    card.querySelector('.card-inner').classList.toggle('is-flipped');
+                });
+            });
+
+
+            // --- Section 5: Mini-Quiz ---
+            const calculateButton = document.getElementById('calculate-quiz');
+            if (calculateButton) {
+                calculateButton.addEventListener('click', () => {
+                    const answers = {
+                        dolphin: 0,
+                        anchor: 0
+                    };
+                    const q1 = document.querySelector('input[name="q1"]:checked');
+                    const q2 = document.querySelector('input[name="q2"]:checked');
+                    const q3 = document.querySelector('input[name="q3"]:checked');
+
+                    if (!q1 || !q2 || !q3) {
+                        document.getElementById('quiz-result').textContent = 'Please answer all questions.';
+                        return;
+                    }
+
+                    [q1, q2, q3].forEach(ans => {
+                        if (ans.value === 'dolphin') answers.dolphin++;
+                        else answers.anchor++;
+                    });
+
+                    const total = answers.dolphin + answers.anchor;
+                    const dolphinScore = Math.round((answers.dolphin / total) * 100);
+                    let resultText = '';
+
+                    if (dolphinScore > 65) {
+                        resultText = `You are ${dolphinScore}% Dolphin! Remember the anchor: take time for strategy.`;
+                    } else if (dolphinScore < 35) {
+                        resultText = `You are ${100 - dolphinScore}% Anchor! Remember the dolphin: sometimes, calculated speed is key.`;
+                    } else {
+                        resultText = `You are perfectly balanced. Festina Lente perfected!`;
+                    }
+                    document.getElementById('quiz-result').textContent = resultText;
+                });
+            }
+
+            // --- Section 6: Gallery Carousel ---
+            const carousel = document.querySelector('.carousel');
+            if (carousel) {
+                const items = carousel.querySelectorAll('.carousel-item');
+                const numItems = items.length;
+                const angle = 360 / numItems;
+                const radius = 400; // The radius of the carousel circle in pixels
+
+                items.forEach((item, i) => {
+                    const itemAngle = angle * i;
+                    item.style.transform = `rotateY(${itemAngle}deg) translateZ(${radius}px)`;
+                });
+            }
+
+            // --- Section 7: Outro Particle Effect ---
+            const canvas = document.getElementById('star-particles');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                let particles = [];
+                const numParticles = 100;
+
+                for (let i = 0; i < numParticles; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 2 + 1,
+                        speedX: (Math.random() * 0.5 - 0.25),
+                        speedY: (Math.random() * 0.5 - 0.25),
+                    });
+                }
+
+                function animateParticles() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => {
+                        p.x += p.speedX;
+                        p.y += p.speedY;
+
+                        if (p.x > canvas.width) p.x = 0;
+                        else if (p.x < 0) p.x = canvas.width;
+                        if (p.y > canvas.height) p.y = 0;
+                        else if (p.y < 0) p.y = canvas.height;
+
+                        ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    requestAnimationFrame(animateParticles);
+                }
+                animateParticles();
+                
+                window.addEventListener('resize', () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
