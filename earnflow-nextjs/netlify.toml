@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build && cp -r .next/.next/server/* .next/"
+  command = "npm run build"
   publish = ".next"
 
 [build.environment]
