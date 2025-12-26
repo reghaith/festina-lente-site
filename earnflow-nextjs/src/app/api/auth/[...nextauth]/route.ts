@@ -1,6 +1,16 @@
-import NextAuth from 'next-auth';
-import { authOptions } from '@/lib/auth';
+// Temporarily disable session route for testing
+import { NextResponse } from 'next/server';
 
-const handler = NextAuth(authOptions);
+export async function GET() {
+  return NextResponse.json({ 
+    message: 'Session endpoint temporarily disabled for testing',
+    status: 200 
+  });
+}
 
-export { handler as GET, handler as POST };
+export async function POST() {
+  return NextResponse.json({ 
+    message: 'Session endpoint temporarily disabled for testing',
+    status: 200 
+  });
+}
