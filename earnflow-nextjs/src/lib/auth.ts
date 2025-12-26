@@ -31,6 +31,7 @@ import { getPrisma } from './prisma';
   secret: process.env.AUTH_SECRET,
   pages: {
     signIn: '/login', // Custom login page
-    error: '/auth/error', // Custom error page for 500 errors
+    error: '/auth/error', // Custom error page for all errors
+    newUser: '/register', // Custom registration page
   },
 };
