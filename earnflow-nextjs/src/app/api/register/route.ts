@@ -32,12 +32,17 @@ export async function POST(request: Request) {
     });
 
     // Automatically create a UserPoints entry for the new user
-    await getPrisma().userPoints.create({
-      data: {
-        userId: newUser.id,
-        pointsBalance: 0,
-      },
-    });
+    try {
+      await getPrisma().userPoints.create({
+        data: {
+          userId: newUser.id,
+          pointsBalance: 0,
+        },
+      });
+    } catch (error) {
+      console.error('UserPoints creation error:', error);
+      // Continue with user creation even if UserPoints fails
+    }
 
     return NextResponse.json({ message: 'User registered successfully.', user: newUser }, { status: 201 });
   } catch (error) {
