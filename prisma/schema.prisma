@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// EarnFlow Models
+
+model UserPoints {
+  id             Int      @id @default(autoincrement())
+  userId         String   @unique @map("user_id")
+  pointsBalance  Int      @default(0) @map("points_balance")
+  updatedAt      DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id])
+  pointsLogs     PointLog[]
+  withdrawals    Withdrawal[]
+
+  @@map("wp_earnflow_points")
+}
+
+model PointLog {
+  id             Int      @id @default(autoincrement())
+  userId         String   @map("user_id")
+  action         String   @db.VarChar(100)
+  points         Int
+  source         String   @default("manual") @db.VarChar(50)
+  transactionId  String?  @unique @map("transaction_id") @db.VarChar(255)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user           UserPoints @relation(fields: [userId], references: [userId])
+
+  @@map("wp_earnflow_points_log")
+}
+
+model Withdrawal {
+  id               Int      @id @default(autoincrement())
+  userId           String   @map("user_id")
+  pointsRequested  Int      @map("points_requested")
+  amountUsd        Decimal  @map("amount_usd") @db.Decimal(10, 2)
+  paymentMethod    String   @db.VarChar(50) @map("payment_method")
+  paymentAddress   String   @db.VarChar(255) @map("payment_address")
+  status           String   @default("pending") @db.VarChar(20) // pending, approved, rejected
+  requestedAt      DateTime @default(now()) @map("requested_at")
+  processedAt      DateTime? @map("processed_at")
+
+  // Relations
+  user             UserPoints @relation(fields: [userId], references: [userId])
+
+  @@map("wp_earnflow_withdrawals")
+}
+
+model UserFlag {
+  id         Int      @id @default(autoincrement())
+  userId     String   @map("user_id")
+  flagType   String   @db.VarChar(50) @map("flag_type")
+  flagMeta   String?  @db.Text @map("flag_meta")
+  createdAt  DateTime @default(now()) @map("created_at")
+  isActive   Boolean  @default(true) @map("is_active")
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("wp_earnflow_user_flags")
+}
+
+model DeviceFingerprint {
+  id               Int      @id @default(autoincrement())
+  userId           String   @map("user_id")
+  fingerprintHash  String   @unique @map("fingerprint_hash") @db.VarChar(64)
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user             User     @relation(fields: [userId], references: [id])
+
+  @@map("wp_earnflow_device_fingerprints")
+}
+
+// Placeholder for WordPress wp_users table.
+// In a real app, you'd integrate with NextAuth.js for user management.
+// For now, we'll assume a basic User model for relations.
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  name              String?
+  password          String // Hashed password
+  role              String   @default("user") // New field for RBAC
+  fraudStatus       String   @default("clean") // New field for overall fraud status
+  createdAt         DateTime @default(now())
+
+  // Relations
+  userPoints        UserPoints?
+  userFlags         UserFlag[]
+  deviceFingerprints DeviceFingerprint[]
+
+  @@map("wp_users_placeholder") // This table won't actually be wp_users, but a custom User table
+}

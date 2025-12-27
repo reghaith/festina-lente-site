@@ -1,0 +1,301 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+    --primary-color: #1E88E5;
+    --secondary-color: #2ECC71;
+    --background-color: #F5F7FA;
+    --text-color: #1F2937;
+    --card-bg-color: #FFFFFF;
+    --border-radius-sm: 8px;
+    --border-radius-lg: 12px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+h1, h2, h3, h4 {
+    font-weight: 600; /* Semi-bold */
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+/* --- Navigation --- */
+.navbar {
+    background-color: var(--card-bg-color);
+    box-shadow: var(--shadow);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.nav-links a {
+    margin-left: 1rem;
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    text-align: center;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px -3px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #FFF;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: #FFF;
+}
+
+/* --- Cards --- */
+.card {
+    background-color: var(--card-bg-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Forms --- */
+.form-card {
+    max-width: 450px;
+    margin: 4rem auto;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #D1D5DB;
+    border-radius: var(--border-radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+}
+
+/* --- Hero Section --- */
+.hero {
+    text-align: center;
+    padding: 6rem 0;
+}
+
+.hero-title {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #4B5563;
+    margin-bottom: 2rem;
+}
+
+.hero .btn {
+    margin: 0 0.5rem;
+}
+
+/* --- How It Works Section --- */
+.how-it-works {
+    padding: 4rem 0;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+}
+
+.how-it-works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.how-it-works-card {
+    text-align: center;
+}
+
+.how-it-works-card h3 {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* --- Dashboard Layout --- */
+.dashboard-layout {
+    display: flex;
+    min-height: calc(100vh - 65px); /* Full height minus navbar */
+}
+
+.sidebar {
+    width: 240px;
+    background-color: var(--card-bg-color);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.sidebar-nav a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-color);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.sidebar-nav a.active,
+.sidebar-nav a:hover {
+    background-color: var(--primary-color);
+    color: #FFF;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* --- Earn Page --- */
+.earn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.earn-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.earn-card .icon {
+    font-size: 4rem; /* Placeholder for icon */
+    margin-bottom: 1rem;
+}
+
+/* --- FAQ Page --- */
+.faq-accordion .faq-item {
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.faq-question {
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 1.5rem 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.faq-answer p {
+    padding: 0 0 1.5rem 0;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 300px; /* Adjust as needed */
+}
+
+.rules-section {
+    margin-top: 4rem;
+}
+
+.rules-section ul {
+    list-style-position: inside;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .dashboard-layout {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .sidebar-nav a {
+        margin: 0 0.25rem;
+    }
+    .main-content {
+        padding: 1.5rem;
+    }
+}
