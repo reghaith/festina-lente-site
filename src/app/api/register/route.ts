@@ -36,7 +36,10 @@ export async function POST(request: Request) {
 
     console.log('Creating Appwrite user via REST API...');
 
-    // Use REST API directly since SDK seems to have issues
+    // Use REST API with explicit userId
+    const userId = 'user' + Math.floor(Math.random() * 100000);
+    console.log('Using REST API with userId:', userId);
+
     const createResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
       method: 'POST',
       headers: {
@@ -44,6 +47,7 @@ export async function POST(request: Request) {
         'X-Appwrite-Project': projectId,
       },
       body: JSON.stringify({
+        userId,
         email,
         password,
         name: name || undefined,
