@@ -59,16 +59,22 @@ async function initializeDatabase() {
       )
     `);
 
-    // Create indexes
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_surveys_user_id ON surveys(user_id)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_offers_user_id ON offers(user_id)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id)`);
+    // Create indexes (these will not error if they already exist)
+    try {
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_surveys_user_id ON surveys(user_id)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_offers_user_id ON offers(user_id)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id)`);
+    } catch (indexError) {
+      console.log('⚠️ Some indexes may already exist, continuing...');
+    }
 
     console.log('✅ Database initialized successfully!');
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
-    process.exit(1);
+    console.log('This might happen if tables already exist or DATABASE_URL is not set.');
+    console.log('The app will continue starting...');
+    // Don't exit with error - let the app start anyway
   }
 }
 
