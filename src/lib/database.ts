@@ -3,8 +3,16 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 // Railway PostgreSQL connection
+const databaseUrl = process.env.DATABASE_URL
+
+if (!databaseUrl) {
+  console.error('❌ DATABASE_URL environment variable is not set!')
+  console.error('Please add PostgreSQL database to your Railway project.')
+  console.error('Railway Dashboard → Your Project → + Add → Database → PostgreSQL')
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 })
 
