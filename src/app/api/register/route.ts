@@ -4,7 +4,10 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name } = await request.json();
+    const body = await request.json();
+    const { email, password, name } = body;
+
+    console.log('Registration request received:', { email, hasPassword: !!password, name });
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -14,10 +17,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
     }
 
-    console.log('Creating Appwrite user - email:', email, 'name:', name);
-
-    const user = await account.create(ID.unique(), email, password, name || undefined);
-    console.log('Appwrite user created:', user.$id);
+    console.log('Creating Appwrite user...');
+    const user = await account.create(
+      email,
+      password,
+      name
+    );
+    console.log('Appwrite user created successfully:', user.$id);
 
     console.log('Creating Appwrite database document');
     await databases.createDocument(
