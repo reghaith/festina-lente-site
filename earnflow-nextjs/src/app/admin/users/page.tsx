@@ -19,7 +19,6 @@ export default function AdminUserManagementPage() {
   const { user, loading } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<UserData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -31,7 +30,6 @@ export default function AdminUserManagementPage() {
   }, [loading, user, router]);
 
   const fetchUsers = async () => {
-    setLoading(true);
     setError('');
     try {
       const res = await fetch('/api/admin/users');
@@ -43,8 +41,6 @@ export default function AdminUserManagementPage() {
       }
     } catch (err) {
       setError('An error occurred while fetching users.');
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -27,7 +27,6 @@ export default function AdminFraudCenterPage() {
   const router = useRouter();
   const [flaggedUsers, setFlaggedUsers] = useState<FlaggedUser[]>([]);
   const [fraudLogs, setFraudLogs] = useState<FraudLog[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -39,7 +38,6 @@ export default function AdminFraudCenterPage() {
   }, [loading, user, router]);
 
   const fetchFraudData = async () => {
-    setLoading(true);
     setError('');
     try {
       const [usersRes, logsRes] = await Promise.all([
@@ -62,8 +60,6 @@ export default function AdminFraudCenterPage() {
       }
     } catch (err) {
       setError('An error occurred while fetching fraud data.');
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -27,6 +27,7 @@ export async function POST(request: Request) {
         id: parseInt(user.$id),
         email,
         name: name || null,
+        password: 'APPWRITE_AUTH', // Placeholder - auth handled by Appwrite
         role: 'user',
       },
     });

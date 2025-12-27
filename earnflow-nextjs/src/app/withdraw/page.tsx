@@ -22,7 +22,6 @@ export default function WithdrawPage() {
 
   const [pointsBalance, setPointsBalance] = useState<number | null>(null);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
-  const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -42,7 +41,6 @@ export default function WithdrawPage() {
   }, [loading, user, router]);
 
   const fetchWithdrawalData = async () => {
-    setLoading(true);
     try {
       const res = await fetch('/api/user/withdrawals');
       if (res.ok) {
@@ -56,8 +54,6 @@ export default function WithdrawPage() {
     } catch (error) {
       console.error('Error fetching withdrawal data:', error);
       setError('Error loading withdrawal data.');
-    } finally {
-      setLoading(false);
     }
   };
 

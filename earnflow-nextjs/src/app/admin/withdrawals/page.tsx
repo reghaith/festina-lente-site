@@ -22,7 +22,6 @@ export default function AdminWithdrawalRequestsPage() {
   const { user, loading } = useSession();
   const router = useRouter();
   const [withdrawals, setWithdrawals] = useState<WithdrawalData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -34,7 +33,6 @@ export default function AdminWithdrawalRequestsPage() {
   }, [loading, user, router]);
 
   const fetchWithdrawals = async () => {
-    setLoading(true);
     setError('');
     try {
       const res = await fetch('/api/admin/withdrawals');
@@ -46,8 +44,6 @@ export default function AdminWithdrawalRequestsPage() {
       }
     } catch (err) {
       setError('An error occurred while fetching withdrawals.');
-    } finally {
-      setLoading(false);
     }
   };
 

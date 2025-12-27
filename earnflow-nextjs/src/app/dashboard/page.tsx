@@ -16,7 +16,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const [pointsBalance, setPointsBalance] = useState<number | null>(null);
   const [recentLogs, setRecentLogs] = useState<PointLog[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -27,7 +26,6 @@ export default function DashboardPage() {
   }, [loading, user, router]);
 
   const fetchDashboardData = async () => {
-    setLoading(true);
     try {
       const res = await fetch('/api/user/dashboard');
       if (res.ok) {
@@ -39,8 +37,6 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

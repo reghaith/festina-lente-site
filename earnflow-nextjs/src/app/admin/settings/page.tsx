@@ -16,7 +16,6 @@ export default function AdminSecuritySettingsPage() {
   const { user, loading } = useSession();
   const router = useRouter();
   const [settings, setSettings] = useState<SecuritySettings | null>(null);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -30,7 +29,6 @@ export default function AdminSecuritySettingsPage() {
   }, [loading, user, router]);
 
   const fetchSettings = async () => {
-    setLoading(true);
     setError('');
     try {
       const res = await fetch('/api/admin/settings');
@@ -42,8 +40,6 @@ export default function AdminSecuritySettingsPage() {
       }
     } catch (err) {
       setError('An error occurred while fetching settings.');
-    } finally {
-      setLoading(false);
     }
   };
 
