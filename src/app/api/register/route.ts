@@ -1,4 +1,4 @@
-import { account } from '@/lib/appwrite';
+import { supabaseAdmin } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -23,108 +23,29 @@ export async function POST(request: Request) {
     console.log('Email:', email);
     console.log('Name:', name);
 
-    console.log('Creating Appwrite user via direct REST API call...');
+    console.log('Creating Supabase user...');
 
-    // Use direct REST API like the debug endpoint
-    const userId = 'reguser' + Math.floor(Math.random() * 1000);
-    console.log('Using userId:', userId);
-
-    const createResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!,
-      },
-      body: JSON.stringify({
-        userId,
-        email,
-        password,
-        name: name || undefined,
-      }),
-    });
-
-    if (!createResponse.ok) {
-      const errorData = await createResponse.json();
-      console.error('Registration failed:', errorData);
-      throw new Error(errorData.message || 'Failed to create user');
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Database not configured properly' },
+        { status: 500 }
+      );
     }
 
-    const user = await createResponse.json();
-    console.log('User created successfully:', user.$id);
-
-    return NextResponse.json({
-      success: true,
-      message: 'Registration successful',
-      user: {
-        id: user.$id,
-        email: user.email,
-        name: user.name,
-      }
-    });
-  } catch (error: any) {
-    console.error('Registration error:', error);
-
-    if (error.code === 409) {
-      return NextResponse.json({
-        error: 'User with this email already exists',
-        code: 409,
-        redirectTo: '/email-exists'
-      }, { status: 409 });
-    }
-
-    return NextResponse.json(
-      { error: error.message || 'Registration failed' },
-      { status: 500 }
-    );
-  }
-}
-
-    if (password.length < 8) {
-      return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
-    }
-
-    console.log('=== Registration Attempt ===');
-    console.log('Email:', email);
-    console.log('Name:', name);
-
-    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
-    if (!projectId) {
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
-    }
-
-    console.log('Creating Appwrite user via REST API...');
-
-    // Try without userId - let Appwrite generate it automatically
-    console.log('Creating user without specifying userId...');
-
-    const requestBody = {
+    // Create user with Supabase Auth Admin API
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      name: name || undefined,
-    };
-    console.log('Request body:', JSON.stringify(requestBody));
-
-    const createResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': projectId,
-      },
-      body: JSON.stringify(requestBody),
+      email_confirm: true, // Auto-confirm email for demo
+      user_metadata: {
+        name: name || ''
+      }
     });
 
-    if (!createResponse.ok) {
-      const errorData = await createResponse.json();
-      console.error('REST API error:', errorData);
+    if (error) {
+      console.error('Supabase registration error:', error);
 
-      // Handle specific error codes
-      if (createResponse.status === 409) {
+      if (error.message.includes('already registered') || error.message.includes('already been registered')) {
         return NextResponse.json({
           error: 'User with this email already exists',
           code: 409,
@@ -132,28 +53,23 @@ export async function POST(request: Request) {
         }, { status: 409 });
       }
 
-      throw new Error(errorData.message || 'Failed to create user');
+      throw error;
     }
 
-    const user = await createResponse.json();
-    console.log('User created via REST API:', user.$id);
-
-    console.log('Appwrite user created successfully:', user.$id);
-
-    // Note: Database document creation moved to login process
-    // to avoid authorization issues during registration
+    console.log('User created successfully:', data.user.id);
 
     return NextResponse.json({
       success: true,
       message: 'Registration successful',
       user: {
-        id: user.$id,
-        email: user.email,
-        name: user.name,
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.user_metadata?.name || '',
       }
     });
   } catch (error: any) {
     console.error('Registration error:', error);
+
     return NextResponse.json(
       { error: error.message || 'Registration failed' },
       { status: 500 }

@@ -1,11 +1,12 @@
 'use client';
 
-import { useSession } from '@/lib/appwrite-auth';
+import { useSupabaseAuth } from '@/lib/supabase-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { user, loading } = useSession();
+  const { user, loading, signOut } = useSupabaseAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
-            Welcome back, {user.name || 'User'}!
+            Welcome back, {user.user_metadata?.name || user.email?.split('@')[0] || 'User'}!
           </h1>
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -133,7 +134,7 @@ export default function DashboardPage() {
 }
 
 function Navbar() {
-  const { user, logout } = useSession();
+  const { signOut } = useSupabaseAuth();
 
   return (
     <nav className="bg-white shadow-sm border-b">
@@ -152,7 +153,7 @@ function Navbar() {
               Dashboard
             </Link>
             <button
-              onClick={() => logout()}
+              onClick={() => signOut()}
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Logout
@@ -163,5 +164,3 @@ function Navbar() {
     </nav>
   );
 }
-
-import Link from 'next/link';

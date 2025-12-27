@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useSession } from '@/lib/appwrite-auth';
+import { useSupabaseAuth } from '@/lib/supabase-auth';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -12,7 +12,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { register } = useSession();
+  const { signUp } = useSupabaseAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,11 +20,14 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(email, password, name);
+      const { error: signUpError } = await signUp(email, password, name);
+      if (signUpError) {
+        throw signUpError;
+      }
       router.push('/dashboard');
     } catch (err: any) {
       // Check if this is a duplicate email error
-      if (err.message && err.message.includes('already exists')) {
+      if (err.message && err.message.includes('already registered')) {
         router.push('/email-exists');
       } else {
         setError(err.message || 'Registration failed');

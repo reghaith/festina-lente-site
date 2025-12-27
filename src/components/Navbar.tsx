@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession } from '@/lib/appwrite-auth';
+import { useSupabaseAuth } from '@/lib/supabase-auth';
 
 export default function Navbar() {
-  const { user, loading, logout } = useSession();
+  const { user, loading, signOut } = useSupabaseAuth();
 
   if (loading) {
     return null;
@@ -29,7 +29,7 @@ export default function Navbar() {
                   Dashboard
                 </Link>
                 <button
-                  onClick={() => logout()}
+                  onClick={() => signOut()}
                   className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                 >
                   Logout
