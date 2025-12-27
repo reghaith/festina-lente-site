@@ -23,13 +23,33 @@ export async function POST(request: Request) {
     console.log('Email:', email);
     console.log('Name:', name);
 
-    console.log('Creating Appwrite user with manual userId...');
+    console.log('Creating Appwrite user via direct REST API call...');
 
-    // Use same approach as debug endpoint that worked
+    // Use direct REST API like the debug endpoint
     const userId = 'reguser' + Math.floor(Math.random() * 1000);
     console.log('Using userId:', userId);
 
-    const user = await account.create(userId, email, password, name);
+    const createResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Appwrite-Project': process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!,
+      },
+      body: JSON.stringify({
+        userId,
+        email,
+        password,
+        name: name || undefined,
+      }),
+    });
+
+    if (!createResponse.ok) {
+      const errorData = await createResponse.json();
+      console.error('Registration failed:', errorData);
+      throw new Error(errorData.message || 'Failed to create user');
+    }
+
+    const user = await createResponse.json();
     console.log('User created successfully:', user.$id);
 
     return NextResponse.json({
