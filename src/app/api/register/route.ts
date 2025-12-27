@@ -14,10 +14,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
     }
 
-    const userId = ID.unique();
-    console.log('Creating Appwrite user with ID:', userId, 'email:', email);
+    console.log('Creating Appwrite user - email:', email, 'name:', name);
 
-    const user = await account.create(userId, email, password, name || undefined);
+    const user = await account.create(ID.unique(), email, password, name || undefined);
     console.log('Appwrite user created:', user.$id);
 
     console.log('Creating Appwrite database document');
@@ -53,13 +52,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, message: 'Registration successful' });
   } catch (error: any) {
     console.error('Registration error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      type: error.type,
+      response: error.response,
+      stack: error.stack
+    });
 
     if (error.code === 409) {
       return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
     }
 
     if (error.code === 400) {
-      return NextResponse.json({ error: 'Invalid input. Email may be invalid or password too short.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid input. Email may be invalid or password must be at least 8 characters.' }, { status: 400 });
     }
 
     return NextResponse.json(
