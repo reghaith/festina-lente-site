@@ -25,8 +25,11 @@ export async function POST(request: Request) {
 
     console.log('Creating Appwrite user with SDK...');
 
-    // Try without userId parameter - let Appwrite generate it
-    const user = await account.create(email, password, name || undefined);
+    // Generate a valid userId (alphanumeric, max 36 chars, no special chars at start)
+    const userId = 'user_' + Date.now().toString() + Math.random().toString(36).substring(2, 8);
+    console.log('Using userId:', userId);
+
+    const user = await account.create(userId, email, password, name || undefined);
 
     console.log('Appwrite user created successfully:', user.$id);
 
