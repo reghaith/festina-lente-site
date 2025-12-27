@@ -9,4 +9,8 @@ startCommand = "npm run start"
 healthcheckPath = "/api/health"
 restartPolicyType = "ON_FAILURE"
 
+# Specify Node.js version for compatibility with Supabase and Next.js
+[build.env]
+NIXPACKS_NODE_VERSION = "20"
+
 # Environment variables will be set in Railway dashboard
