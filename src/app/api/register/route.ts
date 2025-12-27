@@ -69,18 +69,8 @@ export async function POST(request: Request) {
 
     console.log('Appwrite user created successfully:', user.$id);
 
-    // Create user document in database
-    await databases.createDocument(
-      DATABASE_ID,
-      USERS_COLLECTION_ID,
-      user.$id,
-      {
-        email,
-        name: name || null,
-      }
-    );
-
-    console.log('User document created in database');
+    // Note: Database document creation moved to login process
+    // to avoid authorization issues during registration
 
     return NextResponse.json({
       success: true,
