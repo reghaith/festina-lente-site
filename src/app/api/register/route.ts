@@ -22,23 +22,17 @@ export async function POST(request: Request) {
     console.log('=== Registration Attempt ===');
     console.log('Email:', email);
     console.log('Name:', name);
-    console.log('Password provided:', !!password);
-    console.log('Project ID:', projectId);
 
-    // Use a static test userId for debugging
-    const userId = 'testuser' + Math.floor(Math.random() * 1000);
-    console.log('Using static userId:', userId, 'length:', userId.length);
-
-    // Test if userId matches regex: a-z, A-Z, 0-9, period, hyphen, underscore, no special start
-    const userIdRegex = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
-    console.log('UserId valid regex:', userIdRegex.test(userId));
-    console.log('UserId chars:', userId.split(''));
+    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+    if (!projectId) {
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
 
     console.log('Creating Appwrite user via REST API...');
 
     // Use same format as debug endpoint that worked
     const userId = 'testuser' + Math.floor(Math.random() * 1000);
-    console.log('Using same format as debug - userId:', userId);
+    console.log('Using userId:', userId);
 
     const createResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
       method: 'POST',
