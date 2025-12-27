@@ -1,56 +1,37 @@
-// pages/api/register.js
+import { account, databases, DATABASE_ID, USERS_COLLECTION_ID, ID } from '@/lib/appwrite';
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { getPrisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const { email, password, name } = await request.json();
 
-    if (!name || !email || !password) {
-      return NextResponse.json({ message: 'All fields are required.' }, { status: 400 });
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    const existingUser = await getPrisma().user.findUnique({
-      where: { email },
-    });
+    const user = await account.create(ID.unique(), email, password, name || undefined);
 
-    if (existingUser) {
-      return NextResponse.json({ message: 'User with this email already exists.' }, { status: 409 });
-    }
-
-    if (password.length < 8) {
-      return NextResponse.json({ message: 'Password must be at least 8 characters long.' }, { status: 400 });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const newUser = await getPrisma().user.create({
-      data: {
-        name,
+    await databases.createDocument(
+      DATABASE_ID,
+      USERS_COLLECTION_ID,
+      user.$id,
+      {
         email,
-        password: hashedPassword,
-        role: 'user',
-      },
-    });
-
-    await getPrisma().userPoints.create({
-      data: {
-        userId: newUser.id,
-        pointsBalance: 0,
-      },
-    });
-
-    return NextResponse.json({
-      message: 'User registered successfully.',
-      user: {
-        id: newUser.id,
-        email,
-        name,
-        role: 'user'
+        name: name || null,
       }
-    }, { status: 201 });
-  } catch (error) {
+    );
+
+    return NextResponse.json({ success: true, message: 'Registration successful' });
+  } catch (error: any) {
     console.error('Registration error:', error);
-    return NextResponse.json({ message: 'Registration failed. Please try again.' }, { status: 500 });
+
+    if (error.code === 409) {
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
+    }
+
+    return NextResponse.json(
+      { error: error.message || 'Registration failed' },
+      { status: 500 }
+    );
   }
 }
