@@ -7,21 +7,31 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password, name } = body;
 
-    console.log('Registration request received:', { email, hasPassword: !!password, name });
+    console.log('=== Registration request ===');
+    console.log('Email:', email);
+    console.log('Has password:', !!password);
+    console.log('Name:', name);
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
     if (password.length < 8) {
       return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
     }
 
-    console.log('Creating Appwrite user...');
+    console.log('All validations passed, calling account.create...');
+
     const user = await account.create(
       email,
       password,
-      name
+      name || undefined
     );
     console.log('Appwrite user created successfully:', user.$id);
 
