@@ -25,8 +25,9 @@ export async function POST(request: Request) {
 
     console.log('Creating Appwrite user with SDK...');
 
-    // Use Appwrite SDK instead of raw API calls
-    const user = await account.create(email, password, name || undefined);
+    // Use Appwrite SDK - generate userId first
+    const userId = ID.unique();
+    const user = await account.create(userId, email, password, name || undefined);
 
     console.log('Appwrite user created successfully:', user.$id);
 
