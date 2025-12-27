@@ -1,5 +1,5 @@
 import { account } from '@/lib/appwrite';
-import { cookies } from 'next/headers';
+import { getPrisma } from '@/lib/prisma';
 
 export async function getServerSession() {
   try {
@@ -14,4 +14,18 @@ export async function getServerSession() {
   } catch (error) {
     return null;
   }
+}
+
+export async function getCurrentUser() {
+  const session = await getServerSession();
+  if (!session || !session.user) return null;
+
+  const userId = parseInt(session.user.id);
+  if (isNaN(userId)) return null;
+
+  const user = await getPrisma().user.findUnique({
+    where: { id: userId },
+  });
+
+  return user;
 }

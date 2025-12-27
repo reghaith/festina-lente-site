@@ -1,4 +1,5 @@
 import { account, databases, DATABASE_ID, USERS_COLLECTION_ID, ID } from '@/lib/appwrite';
+import { getPrisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -20,6 +21,22 @@ export async function POST(request: Request) {
         name: name || null,
       }
     );
+
+    await getPrisma().user.create({
+      data: {
+        id: parseInt(user.$id),
+        email,
+        name: name || null,
+        role: 'user',
+      },
+    });
+
+    await getPrisma().userPoints.create({
+      data: {
+        userId: parseInt(user.$id),
+        pointsBalance: 0,
+      },
+    });
 
     return NextResponse.json({ success: true, message: 'Registration successful' });
   } catch (error: any) {

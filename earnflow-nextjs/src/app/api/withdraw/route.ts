@@ -1,20 +1,22 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession, getCurrentUser } from '@/lib/server-auth';
 import { getPrisma } from '@/lib/prisma';
-import { authOptions } from '@/lib/auth';
 
 const MIN_WITHDRAWAL_POINTS = 5000; // $5
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session || !session.user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
+  const userId = parseInt(session.user.id);
+  const user = await getCurrentUser();
 
-
-  const userId = parseInt(session.user.id as string);
+  if (!user) {
+    return NextResponse.json({ message: 'User not found' }, { status: 404 });
+  }
   const { pointsAmount, paymentMethod, paymentAddress } = await request.json();
 
   const parsedPointsAmount = parseInt(pointsAmount);
