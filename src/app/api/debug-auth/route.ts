@@ -35,11 +35,25 @@ export async function GET() {
 
     console.log('Account methods available:', accountMethods);
 
+    // Test a simple user creation with manual userId
+    let testUserCreation = null;
+    try {
+      console.log('Testing user creation with manual ID...');
+      const testUserId = 'test-user-' + Date.now().toString().slice(-6);
+      console.log('Using test userId:', testUserId);
+      testUserCreation = await account.create(testUserId, 'test@example.com', 'testpass123', 'Test User');
+      console.log('Test user created successfully:', testUserCreation.$id);
+    } catch (createError: any) {
+      console.log('Test user creation failed:', createError.message);
+      testUserCreation = { error: createError.message, code: createError.code };
+    }
+
     return NextResponse.json({
       project_id: process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID,
       project_id_set: !!process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID,
       current_session: currentSession ? { id: currentSession.$id, email: currentSession.email } : null,
       account_methods: accountMethods,
+      test_user_creation: testUserCreation,
       timestamp: new Date().toISOString(),
     });
 
