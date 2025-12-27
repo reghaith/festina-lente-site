@@ -30,9 +30,15 @@ export async function POST(request: Request) {
 
     console.log('Creating Appwrite user via REST API...');
 
-    // Generate a simple valid userId (must be <= 36 chars, alphanumeric + _ - .)
-    const userId = 'user' + Date.now().toString().slice(-6);
-    console.log('Generated userId:', userId, 'length:', userId.length);
+    // Try without userId - let Appwrite generate it automatically
+    console.log('Creating user without specifying userId...');
+
+    const requestBody = {
+      email,
+      password,
+      name: name || undefined,
+    };
+    console.log('Request body:', JSON.stringify(requestBody));
 
     const createResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
       method: 'POST',
@@ -40,12 +46,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
         'X-Appwrite-Project': projectId,
       },
-      body: JSON.stringify({
-        userId,
-        email,
-        password,
-        name: name || undefined,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!createResponse.ok) {
