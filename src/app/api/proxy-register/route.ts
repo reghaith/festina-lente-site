@@ -1,9 +1,9 @@
-import { account, databases, DATABASE_ID, USERS_COLLECTION_ID } from '@/lib/appwrite';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name } = await request.json();
+    const body = await request.json();
+    const { email, password, name } = body;
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -24,9 +24,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
     }
 
-    console.log('Creating Appwrite user via server-side API call for:', email);
+    console.log('Creating Appwrite user via proxy for:', email);
 
-    // Make direct API call to Appwrite from server-side to avoid CORS
+    // Make request to Appwrite from server-side
     const appwriteResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
       method: 'POST',
       headers: {
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     const responseData = await appwriteResponse.json();
 
     if (!appwriteResponse.ok) {
-      console.error('Appwrite API error:', responseData);
+      console.error('Appwrite error:', responseData);
       return NextResponse.json(
         { error: responseData.message || 'Registration failed' },
         { status: appwriteResponse.status }

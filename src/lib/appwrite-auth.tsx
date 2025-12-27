@@ -30,12 +30,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function checkSession() {
     try {
-      const session = await account.get();
-      setUser({
-        id: session.$id,
-        email: session.email,
-        name: session.name,
+      // Use server-side proxy to avoid CORS issues
+      const response = await fetch('/api/auth/session', {
+        method: 'GET',
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser({
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.name,
+        });
+      } else {
+        setUser(null);
+      }
     } catch (error) {
       setUser(null);
     } finally {
@@ -44,22 +53,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string) {
-    await account.createEmailPasswordSession(email, password);
-    const session = await account.get();
+    // Use server-side proxy to avoid CORS issues
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Login failed');
+    }
+
     setUser({
-      id: session.$id,
-      email: session.email,
-      name: session.name,
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.name,
     });
   }
 
   async function logout() {
-    await account.deleteSession('current');
+    // Use server-side proxy to avoid CORS issues
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+    });
     setUser(null);
   }
 
   async function register(email: string, password: string, name?: string) {
-    await (account as any).create(email, password, name);
+    // Use server-side proxy to avoid CORS issues
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password, name }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Registration failed');
+    }
+
+    // After successful registration, login the user
     await login(email, password);
   }
 
