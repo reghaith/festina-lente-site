@@ -1,22 +1,20 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function AdminDashboardPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return;
-    if (status === 'unauthenticated') {
+    if (!loading && !user) {
       router.push('/login');
     }
-    // TODO: Add actual role check here: if (session?.user?.role !== 'admin') router.push('/unauthorized');
-  }, [session, status, router]);
+  }, [loading, user, router]);
 
-  if (status === 'loading' || status === 'unauthenticated') {
+  if (loading || !user) {
     return (
       <div className="card">
         <p>Loading admin dashboard...</p>
@@ -28,11 +26,10 @@ export default function AdminDashboardPage() {
     <>
       <h1 className="page-title">Admin Dashboard</h1>
       <div className="card">
-        <h2>Welcome, {session?.user?.name || 'Admin'}!</h2>
+        <h2>Welcome, {user?.name || 'Admin'}!</h2>
         <p>This is your central hub for managing the EarnFlow platform.</p>
         <p>Use the sidebar to navigate through different administration sections.</p>
       </div>
-      {/* Add more admin-specific widgets/summaries here */}
     </>
   );
 }

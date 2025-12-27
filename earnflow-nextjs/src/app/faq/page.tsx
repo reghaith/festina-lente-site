@@ -1,26 +1,36 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function FaqPage() {
-  const { status } = useSession();
+  const { loading } = useSession();
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
+    if (!loading) {
+      const checkSession = async () => {
+        try {
+          const res = await fetch('/api/auth/session');
+          if (!res.ok) {
+            router.push('/login');
+          }
+        } catch (error) {
+          router.push('/login');
+        }
+      };
+      checkSession();
     }
-  }, [status, router]);
+  }, [loading, router]);
 
   const toggleAccordion = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
-  if (status === 'loading') {
+  if (loading) {
     return (
       <main className="main-content">
         <div className="card">

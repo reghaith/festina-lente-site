@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
@@ -10,19 +10,16 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, status } = useSession();
+  const { user, loading } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return; // Do nothing while loading
-    if (status === 'unauthenticated') {
-      router.push('/login'); // Redirect to login if not authenticated
-    } else if (status === 'authenticated' && (session?.user as any)?.role !== 'admin') {
-      router.push('/dashboard'); // Redirect if authenticated but not admin
+    if (!loading && !user) {
+      router.push('/login');
     }
-  }, [session, status, router]);
+  }, [loading, user, router]);
 
-  if (status === 'loading') {
+  if (loading) {
     return (
       <main className="main-content">
         <div className="card">
@@ -32,7 +29,7 @@ export default function AdminLayout({
     );
   }
 
-  if (status === 'unauthenticated' || (status === 'authenticated' && (session?.user as any)?.role !== 'admin')) {
+  if (!user) {
     return (
       <main className="main-content">
         <div className="card">

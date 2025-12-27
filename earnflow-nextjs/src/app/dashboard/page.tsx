@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -12,19 +12,19 @@ interface PointLog {
 }
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useSession();
   const router = useRouter();
   const [pointsBalance, setPointsBalance] = useState<number | null>(null);
   const [recentLogs, setRecentLogs] = useState<PointLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!loading && !user) {
       router.push('/login');
-    } else if (status === 'authenticated') {
+    } else if (user) {
       fetchDashboardData();
     }
-  }, [status, router]);
+  }, [loading, user, router]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -44,7 +44,7 @@ export default function DashboardPage() {
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
       <main className="main-content">
         <div className="card">

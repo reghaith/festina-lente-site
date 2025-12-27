@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ interface FraudLog {
 }
 
 export default function AdminFraudCenterPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useSession();
   const router = useRouter();
   const [flaggedUsers, setFlaggedUsers] = useState<FlaggedUser[]>([]);
   const [fraudLogs, setFraudLogs] = useState<FraudLog[]>([]);
@@ -31,13 +31,12 @@ export default function AdminFraudCenterPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (status === 'loading') return;
-    if (status === 'unauthenticated' || (session?.user as any)?.role !== 'admin') {
-      router.push('/login'); // Redirect if not admin
-    } else {
+    if (!loading && !user) {
+      router.push('/login');
+    } else if (user) {
       fetchFraudData();
     }
-  }, [session, status, router]);
+  }, [loading, user, router]);
 
   const fetchFraudData = async () => {
     setLoading(true);
@@ -89,7 +88,7 @@ export default function AdminFraudCenterPage() {
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
       <div className="card">
         <p>Loading fraud center...</p>
@@ -97,7 +96,7 @@ export default function AdminFraudCenterPage() {
     );
   }
 
-  if (status === 'unauthenticated' || (session?.user as any)?.role !== 'admin') {
+  if (!user) {
     return (
       <div className="card">
         <p>You are not authorized to view this page.</p>

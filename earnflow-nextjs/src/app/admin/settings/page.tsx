@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ interface SecuritySettings {
 }
 
 export default function AdminSecuritySettingsPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useSession();
   const router = useRouter();
   const [settings, setSettings] = useState<SecuritySettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,13 +22,12 @@ export default function AdminSecuritySettingsPage() {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    if (status === 'loading') return;
-    if (status === 'unauthenticated' || (session?.user as any)?.role !== 'admin') {
-      router.push('/login'); // Redirect if not admin
-    } else {
+    if (!loading && !user) {
+      router.push('/login');
+    } else if (user) {
       fetchSettings();
     }
-  }, [session, status, router]);
+  }, [loading, user, router]);
 
   const fetchSettings = async () => {
     setLoading(true);
@@ -74,7 +73,7 @@ export default function AdminSecuritySettingsPage() {
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
       <div className="card">
         <p>Loading security settings...</p>
@@ -82,7 +81,7 @@ export default function AdminSecuritySettingsPage() {
     );
   }
 
-  if (status === 'unauthenticated' || (session?.user as any)?.role !== 'admin') {
+  if (!user) {
     return (
       <div className="card">
         <p>You are not authorized to view this page.</p>

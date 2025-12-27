@@ -1,12 +1,12 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function EarnPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useSession();
   const router = useRouter();
 
   const [lootablyUrl, setLootablyUrl] = useState('');
@@ -15,12 +15,12 @@ export default function EarnPage() {
   const [loadingConfig, setLoadingConfig] = useState(true);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!loading && !user) {
       router.push('/login');
-    } else if (status === 'authenticated') {
+    } else if (user) {
       fetchAdNetworkConfig();
     }
-  }, [status, router]);
+  }, [loading, user, router]);
 
   const fetchAdNetworkConfig = async () => {
     setLoadingConfig(true);
@@ -41,7 +41,7 @@ export default function EarnPage() {
     }
   };
 
-  if (status === 'loading' || loadingConfig) {
+  if (loading || loadingConfig) {
     return (
       <main className="main-content">
         <div className="card">
@@ -51,7 +51,7 @@ export default function EarnPage() {
     );
   }
 
-  const userId = session?.user?.id;
+  const userId = user?.id;
   const lootablyFinalUrl = lootablyUrl ? `${lootablyUrl}/${userId}` : '';
   const cpxFinalUrl = cpxAppId && cpxHash && userId ? `https://offers.cpx-research.com/index.php?app_id=${cpxAppId}&ext_user_id=${userId}&secure_hash=${cpxHash}` : '';
 

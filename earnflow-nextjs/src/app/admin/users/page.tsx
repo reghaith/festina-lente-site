@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -11,25 +11,24 @@ interface UserData {
   email: string;
   role: string;
   pointsBalance: number;
-  fraudStatus: string; // Changed to string
+  fraudStatus: string;
   flags: { flagType: string; createdAt: string }[];
 }
 
 export default function AdminUserManagementPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (status === 'loading') return;
-    if (status === 'unauthenticated' || (session?.user as any)?.role !== 'admin') {
-      router.push('/login'); // Redirect if not admin
-    } else {
+    if (!loading && !user) {
+      router.push('/login');
+    } else if (user) {
       fetchUsers();
     }
-  }, [session, status, router]);
+  }, [loading, user, router]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -70,7 +69,7 @@ export default function AdminUserManagementPage() {
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
       <div className="card">
         <p>Loading users...</p>
@@ -78,7 +77,7 @@ export default function AdminUserManagementPage() {
     );
   }
 
-  if (status === 'unauthenticated' || (session?.user as any)?.role !== 'admin') {
+  if (!user) {
     return (
       <div className="card">
         <p>You are not authorized to view this page.</p>

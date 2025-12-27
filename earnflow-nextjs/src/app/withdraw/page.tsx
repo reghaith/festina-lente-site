@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ interface Withdrawal {
 }
 
 export default function WithdrawPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useSession();
   const router = useRouter();
 
   const [pointsBalance, setPointsBalance] = useState<number | null>(null);
@@ -34,12 +34,12 @@ export default function WithdrawPage() {
   const MIN_WITHDRAWAL_POINTS = 5000; // $5
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!loading && !user) {
       router.push('/login');
-    } else if (status === 'authenticated') {
+    } else if (user) {
       fetchWithdrawalData();
     }
-  }, [status, router]);
+  }, [loading, user, router]);
 
   const fetchWithdrawalData = async () => {
     setLoading(true);
@@ -111,7 +111,7 @@ export default function WithdrawPage() {
   const hasPendingWithdrawal = withdrawals.some(w => w.status === 'pending');
   const canWithdraw = pointsBalance !== null && pointsBalance >= MIN_WITHDRAWAL_POINTS && !hasPendingWithdrawal && !formLoading;
 
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
       <main className="main-content">
         <div className="card">

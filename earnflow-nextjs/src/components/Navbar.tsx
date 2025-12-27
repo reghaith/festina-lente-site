@@ -1,10 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from '@/lib/appwrite-auth';
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { user, loading, logout } = useSession();
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <nav className="navbar">
@@ -13,12 +17,12 @@ export default function Navbar() {
           EarnFlow
         </Link>
         <div className="nav-links">
-          {session ? (
+          {user ? (
             <>
               <Link href="/dashboard" className="btn btn-primary">
                 Dashboard
               </Link>
-              <button onClick={() => signOut()} className="btn">
+              <button onClick={() => logout()} className="btn">
                 Logout
               </button>
             </>

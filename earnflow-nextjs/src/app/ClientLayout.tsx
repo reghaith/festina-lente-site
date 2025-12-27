@@ -1,6 +1,6 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
+import { AuthProvider } from '@/lib/appwrite-auth';
 import Navbar from '@/components/Navbar';
 
 export default function ClientLayout({
@@ -9,9 +9,9 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <Navbar />
       {children}
-    </SessionProvider>
+    </AuthProvider>
   );
 }
