@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase';
+import { db, auth } from '@/lib/database';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -12,25 +12,8 @@ export async function POST(request: Request) {
     console.log('=== Login Attempt ===');
     console.log('Email:', email);
 
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: 'Database not configured properly' },
-        { status: 500 }
-      );
-    }
-
-    // For Supabase, we can verify the user exists
-    // The actual authentication happens client-side
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers();
-
-    if (error) {
-      console.error('Error checking users:', error);
-      throw error;
-    }
-
-    // Find the user by email
-    const user = data.users.find(u => u.email === email);
-
+    // Get user by email
+    const user = await db.getUserByEmail(email);
     if (!user) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
@@ -38,26 +21,32 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('User found:', user.id);
+    // Verify password
+    const isValidPassword = await auth.verifyPassword(password, user.password_hash);
+    if (!isValidPassword) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
+    // Generate JWT token
+    const token = await auth.generateToken(user.id);
+
+    console.log('User logged in successfully:', user.id);
 
     return NextResponse.json({
       success: true,
       user: {
         id: user.id,
         email: user.email,
-        name: user.user_metadata?.name || '',
-      }
+        name: user.name,
+      },
+      token
     });
   } catch (error: any) {
     console.error('=== Login Error ===');
     console.error('Error message:', error.message);
-
-    if (error.message?.includes('Invalid login credentials') || error.message?.includes('not found')) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
-    }
 
     return NextResponse.json(
       { error: error.message || 'Login failed' },

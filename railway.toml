@@ -5,12 +5,14 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "npm run start"
+startCommand = "npm run db:init && npm run start"
 healthcheckPath = "/api/health"
 restartPolicyType = "ON_FAILURE"
 
-# Specify Node.js version for compatibility with Supabase and Next.js
+# Specify Node.js version
 [build.env]
 NIXPACKS_NODE_VERSION = "20"
 
 # Environment variables will be set in Railway dashboard
+# Required: DATABASE_URL (provided by Railway)
+# Required: JWT_SECRET (set in Railway dashboard)

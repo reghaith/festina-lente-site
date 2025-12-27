@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useSupabaseAuth } from '@/lib/supabase-auth';
+import { useAuth } from '@/lib/auth';
 
 export default function Navbar() {
-  const { user, loading, signOut } = useSupabaseAuth();
+  const { user, loading, signOut } = useAuth();
 
   if (loading) {
     return null;

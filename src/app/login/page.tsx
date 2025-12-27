@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useSupabaseAuth } from '@/lib/supabase-auth';
+import { useAuth } from '@/lib/auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signIn } = useSupabaseAuth();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,9 +19,9 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { error: signInError } = await signIn(email, password);
-      if (signInError) {
-        throw signInError;
+      const { success, error: signInError } = await signIn(email, password);
+      if (!success) {
+        throw new Error(signInError);
       }
       router.push('/dashboard');
     } catch (err: any) {
