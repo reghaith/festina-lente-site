@@ -9,8 +9,7 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-
-  const resolvedParams = await context.params; // Await the promise
+  const resolvedParams = await context.params;
   const targetUserId = resolvedParams.id;
   const { action } = await request.json();
 
@@ -28,7 +27,6 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     switch (action) {
       case 'ban':
         newFraudStatus = 'banned';
-        // Deactivate all flags when banning
         await getPrisma().userFlag.updateMany({
           where: { userId: targetUserId },
           data: { isActive: false },
@@ -36,7 +34,6 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
         break;
       case 'unban':
         newFraudStatus = 'clean';
-        // Deactivate all flags when unbanning
         await getPrisma().userFlag.updateMany({
           where: { userId: targetUserId },
           data: { isActive: false },
@@ -44,7 +41,6 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
         break;
       case 'whitelist':
         newFraudStatus = 'whitelisted';
-        // Deactivate all flags when whitelisting
         await getPrisma().userFlag.updateMany({
           where: { userId: targetUserId },
           data: { isActive: false },
@@ -55,10 +51,10 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     }
 
     if (newFraudStatus) {
-        await getPrisma().user.update({
-            where: { id: targetUserId },
-            data: { fraudStatus: newFraudStatus },
-        });
+      await getPrisma().user.update({
+        where: { id: targetUserId },
+        data: { fraudStatus: newFraudStatus },
+      });
     }
 
     return NextResponse.json({ message: `User ${action} successful.` });

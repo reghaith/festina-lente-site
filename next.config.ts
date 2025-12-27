@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@prisma/client'],
   // Disable trailing slash
   trailingSlash: false,
+  // Set correct workspace root
+  turbopack: {
+    root: __dirname
+  }
 };
 
 export default nextConfig;
