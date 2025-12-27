@@ -25,9 +25,9 @@ export async function POST(request: Request) {
     console.log('Password provided:', !!password);
     console.log('Project ID:', projectId);
 
-    // Generate a simple valid userId
-    const userId = 'user' + Date.now().toString().slice(-6);
-    console.log('Generated userId:', userId, 'length:', userId.length);
+    // Use a static test userId for debugging
+    const userId = 'testuser' + Math.floor(Math.random() * 1000);
+    console.log('Using static userId:', userId, 'length:', userId.length);
 
     // Test if userId matches regex: a-z, A-Z, 0-9, period, hyphen, underscore, no special start
     const userIdRegex = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
