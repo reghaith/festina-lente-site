@@ -34,24 +34,30 @@ export async function POST(request: Request) {
     console.log('UserId valid regex:', userIdRegex.test(userId));
     console.log('UserId chars:', userId.split(''));
 
-    console.log('Creating Appwrite user with SDK...');
+    console.log('Creating Appwrite user via REST API...');
 
-    // Try without userId - let Appwrite auto-generate
-    console.log('Attempting to create user without userId parameter...');
+    // Use REST API directly since SDK seems to have issues
+    const createResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Appwrite-Project': projectId,
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        name: name || undefined,
+      }),
+    });
 
-    try {
-      const user = await account.create(email, password, name || undefined);
-      console.log('Success! User created without userId:', user.$id);
-    } catch (noUserIdError: any) {
-      console.log('Failed without userId:', noUserIdError.message);
+    if (!createResponse.ok) {
+      const errorData = await createResponse.json();
+      console.error('REST API error:', errorData);
+      throw new Error(errorData.message || 'Failed to create user');
+    }
 
-      // Fallback: try with a very simple userId
-      console.log('Trying with simple userId...');
-      const userId = 'u' + Math.floor(Math.random() * 10000);
-      console.log('Using fallback userId:', userId);
-
-      const user = await account.create(userId, email, password, name || undefined);
-      console.log('Success with fallback userId!');
+    const user = await createResponse.json();
+    console.log('User created via REST API:', user.$id);
 
     console.log('Appwrite user created successfully:', user.$id);
 
