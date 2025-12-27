@@ -36,9 +36,9 @@ export async function POST(request: Request) {
 
     console.log('Creating Appwrite user via REST API...');
 
-    // Use REST API with explicit userId
-    const userId = 'user' + Math.floor(Math.random() * 100000);
-    console.log('Using REST API with userId:', userId);
+    // Use same format as debug endpoint that worked
+    const userId = 'testuser' + Math.floor(Math.random() * 1000);
+    console.log('Using same format as debug - userId:', userId);
 
     const createResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
       method: 'POST',
