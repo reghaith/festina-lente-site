@@ -2,23 +2,7 @@ import bcrypt from 'bcryptjs';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { getPrisma } from './prisma';
-
-declare module 'next-auth' {
-  interface User {
-    id: string;
-    role: string;
-  }
-  interface Session {
-    user: User;
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    id: string;
-    role: string;
-  }
-}
+import { User } from '@prisma/client';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -48,7 +32,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: user.id,
+          id: user.id.toString(),
           email: user.email,
           name: user.name,
           role: user.role,
@@ -62,16 +46,18 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
-        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
+        const user = await getPrisma().user.findUnique({
+            where: { id: parseInt(token.id as string) },
+        });
+        session.user.id = token.id as string;
         session.user.email = token.email;
         session.user.name = token.name;
-        session.user.role = token.role;
+        (session.user as any).role = user?.role;
       }
       return session;
     },
