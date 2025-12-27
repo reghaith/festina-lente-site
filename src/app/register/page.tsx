@@ -23,7 +23,12 @@ export default function RegisterPage() {
       await register(email, password, name);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      // Check if this is a duplicate email error
+      if (err.message && err.message.includes('already exists')) {
+        router.push('/email-exists');
+      } else {
+        setError(err.message || 'Registration failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +105,16 @@ export default function RegisterPage() {
             {error && (
               <div className="text-red-600 text-sm text-center">
                 {error}
+                {error.includes('already exists') && (
+                  <div className="mt-2">
+                    <Link
+                      href="/email-exists"
+                      className="text-blue-600 hover:text-blue-500 text-sm"
+                    >
+                      What should I do?
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
 

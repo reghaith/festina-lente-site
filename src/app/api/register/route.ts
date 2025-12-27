@@ -51,6 +51,16 @@ export async function POST(request: Request) {
     if (!createResponse.ok) {
       const errorData = await createResponse.json();
       console.error('REST API error:', errorData);
+
+      // Handle specific error codes
+      if (createResponse.status === 409) {
+        return NextResponse.json({
+          error: 'User with this email already exists',
+          code: 409,
+          redirectTo: '/email-exists'
+        }, { status: 409 });
+      }
+
       throw new Error(errorData.message || 'Failed to create user');
     }
 
