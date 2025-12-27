@@ -23,10 +23,13 @@ export async function POST(request: Request) {
     console.log('Email:', email);
     console.log('Name:', name);
 
-    console.log('Creating Appwrite user with SDK...');
+    console.log('Creating Appwrite user with manual userId...');
 
-    // Use Appwrite SDK without specifying userId
-    const user = await account.create(email, password, name);
+    // Use same approach as debug endpoint that worked
+    const userId = 'reguser' + Math.floor(Math.random() * 1000);
+    console.log('Using userId:', userId);
+
+    const user = await account.create(userId, email, password, name);
     console.log('User created successfully:', user.$id);
 
     return NextResponse.json({
