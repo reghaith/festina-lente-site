@@ -1,4 +1,4 @@
-import { account, databases, DATABASE_ID, USERS_COLLECTION_ID } from '@/lib/appwrite';
+import { account, databases, DATABASE_ID, USERS_COLLECTION_ID, ID } from '@/lib/appwrite';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -19,54 +19,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
-    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
-    if (!projectId) {
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
-    }
-
     console.log('=== Registration Attempt ===');
     console.log('Email:', email);
     console.log('Name:', name);
-    console.log('Password provided:', !!password);
-    console.log('Project ID:', projectId);
 
-    console.log('Creating Appwrite user via server-side API call...');
+    console.log('Creating Appwrite user with SDK...');
 
-    // Make direct API call to Appwrite from server-side to avoid CORS
-    const appwriteResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': projectId,
-      },
-      body: JSON.stringify({
+    // Use Appwrite SDK instead of raw API calls
+    const user = await account.create(email, password, name || undefined);
+
+    console.log('Appwrite user created successfully:', user.$id);
+
+    // Create user document in database
+    await databases.createDocument(
+      DATABASE_ID,
+      USERS_COLLECTION_ID,
+      user.$id,
+      {
         email,
-        password,
-        name: name || undefined,
-      }),
-    });
+        name: name || null,
+      }
+    );
 
-    console.log('Appwrite API response status:', appwriteResponse.status);
-
-    const responseData = await appwriteResponse.json();
-
-    if (!appwriteResponse.ok) {
-      console.error('Appwrite API error:', responseData);
-      return NextResponse.json(
-        { error: responseData.message || 'Registration failed' },
-        { status: appwriteResponse.status }
-      );
-    }
-
-    console.log('Appwrite user created successfully:', responseData.$id);
+    console.log('User document created in database');
 
     return NextResponse.json({
       success: true,
       message: 'Registration successful',
       user: {
-        id: responseData.$id,
-        email: responseData.email,
-        name: responseData.name,
+        id: user.$id,
+        email: user.email,
+        name: user.name,
       }
     });
   } catch (error: any) {
