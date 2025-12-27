@@ -35,9 +35,23 @@ export async function POST(request: Request) {
     console.log('UserId chars:', userId.split(''));
 
     console.log('Creating Appwrite user with SDK...');
-    console.log('Calling account.create with:', { userId, email, passwordProvided: !!password, name });
 
-    const user = await account.create(userId, email, password, name || undefined);
+    // Try without userId - let Appwrite auto-generate
+    console.log('Attempting to create user without userId parameter...');
+
+    try {
+      const user = await account.create(email, password, name || undefined);
+      console.log('Success! User created without userId:', user.$id);
+    } catch (noUserIdError: any) {
+      console.log('Failed without userId:', noUserIdError.message);
+
+      // Fallback: try with a very simple userId
+      console.log('Trying with simple userId...');
+      const userId = 'u' + Math.floor(Math.random() * 10000);
+      console.log('Using fallback userId:', userId);
+
+      const user = await account.create(userId, email, password, name || undefined);
+      console.log('Success with fallback userId!');
 
     console.log('Appwrite user created successfully:', user.$id);
 
