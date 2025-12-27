@@ -39,7 +39,7 @@ export async function GET() {
     let testUserCreation = null;
     try {
       console.log('Testing user creation with manual ID...');
-      const testUserId = 'test-user-' + Date.now().toString().slice(-6);
+      const testUserId = 'testuser' + Date.now().toString().slice(-6);
       console.log('Using test userId:', testUserId);
       testUserCreation = await account.create(testUserId, 'test@example.com', 'testpass123', 'Test User');
       console.log('Test user created successfully:', testUserCreation.$id);

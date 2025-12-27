@@ -22,12 +22,20 @@ export async function POST(request: Request) {
     console.log('=== Registration Attempt ===');
     console.log('Email:', email);
     console.log('Name:', name);
-
-    console.log('Creating Appwrite user with SDK...');
+    console.log('Password provided:', !!password);
+    console.log('Project ID:', projectId);
 
     // Generate a simple valid userId
     const userId = 'user' + Date.now().toString().slice(-6);
-    console.log('Using simple userId:', userId, 'length:', userId.length);
+    console.log('Generated userId:', userId, 'length:', userId.length);
+
+    // Test if userId matches regex: a-z, A-Z, 0-9, period, hyphen, underscore, no special start
+    const userIdRegex = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
+    console.log('UserId valid regex:', userIdRegex.test(userId));
+    console.log('UserId chars:', userId.split(''));
+
+    console.log('Creating Appwrite user with SDK...');
+    console.log('Calling account.create with:', { userId, email, passwordProvided: !!password, name });
 
     const user = await account.create(userId, email, password, name || undefined);
 
