@@ -24,7 +24,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
     }
 
-    console.log('Creating Appwrite user via server-side API call for:', email);
+    console.log('=== Registration Attempt ===');
+    console.log('Email:', email);
+    console.log('Name:', name);
+    console.log('Password provided:', !!password);
+    console.log('Project ID:', projectId);
+
+    console.log('Creating Appwrite user via server-side API call...');
 
     // Make direct API call to Appwrite from server-side to avoid CORS
     const appwriteResponse = await fetch(`https://cloud.appwrite.io/v1/account`, {
@@ -34,12 +40,13 @@ export async function POST(request: Request) {
         'X-Appwrite-Project': projectId,
       },
       body: JSON.stringify({
-        userId: `unique()`,
         email,
         password,
         name: name || undefined,
       }),
     });
+
+    console.log('Appwrite API response status:', appwriteResponse.status);
 
     const responseData = await appwriteResponse.json();
 
