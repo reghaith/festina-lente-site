@@ -36,7 +36,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
-            Welcome back, {user.user_metadata?.name || user.email?.split('@')[0] || 'User'}!
+            Welcome back, {user.name || user.email?.split('@')[0] || 'User'}!
           </h1>
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -134,7 +134,7 @@ export default function DashboardPage() {
 }
 
 function Navbar() {
-  const { signOut } = useSupabaseAuth();
+  const { signOut } = useAuth();
 
   return (
     <nav className="bg-white shadow-sm border-b">

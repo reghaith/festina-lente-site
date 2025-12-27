@@ -1,6 +1,3 @@
-import { account } from '@/lib/appwrite';
-import { NextResponse } from 'next/server';
-
 import { db, auth } from '@/lib/database';
 import { NextResponse } from 'next/server';
 
