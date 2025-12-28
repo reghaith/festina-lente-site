@@ -310,17 +310,7 @@ export default function WithdrawPage() {
             </div>
           </div>
 
-          {/* Guidelines */}
-          <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Withdrawal Guidelines</h3>
-              <ul className="space-y-2 text-gray-600 text-sm">
-              <li>• Minimum withdrawal amounts vary by payment method</li>
-              <li>• Processing times depend on the selected method</li>
-              <li>• Some methods may have small fees</li>
-              <li>• All withdrawals are subject to verification</li>
-              <li>• ef points can be converted to cash or other rewards</li>
-            </ul>
-          </div>
+
         </div>
       </div>
     </div>

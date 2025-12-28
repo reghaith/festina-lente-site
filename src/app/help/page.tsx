@@ -143,6 +143,86 @@ export default function HelpPage() {
             </div>
           </div>
 
+          {/* Offer Guidelines */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <span className="text-2xl mr-3">🎯</span>
+              Offer Guidelines
+            </h2>
+            <div className="space-y-4">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-blue-900 mb-3">Completing Offers</h3>
+                <ul className="space-y-2 text-blue-800">
+                  <li className="flex items-start">
+                    <span className="text-blue-600 mr-3 mt-0.5">📋</span>
+                    <span>Complete offers exactly as described to receive rewards</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-600 mr-3 mt-0.5">📱</span>
+                    <span>Some offers require account creation or app installation</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-600 mr-3 mt-0.5">✅</span>
+                    <span>Keep receipts or confirmation emails for verification</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-600 mr-3 mt-0.5">🔄</span>
+                    <span>Multiple offers can be completed simultaneously</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="bg-green-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-green-900 mb-3">Reward Processing</h3>
+                <div className="text-green-800">
+                  <p className="flex items-start">
+                    <span className="text-green-600 mr-3 mt-0.5">⏱️</span>
+                    <span>Points are credited after offer verification (usually 24-48 hours)</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Withdrawal Guidelines */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <span className="text-2xl mr-3">💰</span>
+              Withdrawal Guidelines
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Methods</h3>
+                <ul className="space-y-3 text-gray-600">
+                  <li className="flex items-start">
+                    <span className="text-blue-500 mr-3 mt-0.5">💳</span>
+                    <span>Minimum withdrawal amounts vary by payment method</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-orange-500 mr-3 mt-0.5">⏱️</span>
+                    <span>Processing times depend on the selected method</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-red-500 mr-3 mt-0.5">💸</span>
+                    <span>Some methods may have small fees</span>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Important Notes</h3>
+                <ul className="space-y-3 text-gray-600">
+                  <li className="flex items-start">
+                    <span className="text-purple-500 mr-3 mt-0.5">🔍</span>
+                    <span>All withdrawals are subject to verification</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-3 mt-0.5">🔄</span>
+                    <span>ef points can be converted to cash or other rewards</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* FAQ Section */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">

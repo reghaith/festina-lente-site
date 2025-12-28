@@ -209,16 +209,7 @@ export default function OffersPage() {
             ))}
           </div>
 
-          <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Offer Guidelines</h3>
-            <ul className="space-y-2 text-gray-600 text-sm">
-              <li>• Complete offers exactly as described to receive rewards</li>
-              <li>• Some offers require account creation or app installation</li>
-              <li>• Points are credited after offer verification (usually 24-48 hours)</li>
-              <li>• Keep receipts or confirmation emails for verification</li>
-              <li>• Multiple offers can be completed simultaneously</li>
-            </ul>
-          </div>
+
         </div>
       </div>
     </div>
