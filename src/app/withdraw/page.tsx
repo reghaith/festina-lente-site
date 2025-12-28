@@ -26,6 +26,9 @@ export default function WithdrawPage() {
     total_earned: 0
   });
   const [loadingBalance, setLoadingBalance] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -94,26 +97,29 @@ export default function WithdrawPage() {
   ];
 
   const handleWithdraw = () => {
+    setErrorMessage('');
+    setSuccessMessage('');
+
     const numAmount = parseFloat(amount);
     const method = withdrawalMethods.find(m => m.id === selectedMethod);
 
     if (!method) {
-      alert('Please select a withdrawal method');
+      setErrorMessage('Please select a withdrawal method');
       return;
     }
 
     if (numAmount < method.minAmount) {
-      alert(`Minimum withdrawal amount for ${method.name} is $${method.minAmount}`);
+      setErrorMessage(`Minimum withdrawal amount for ${method.name} is ${method.minAmount} ef`);
       return;
     }
 
     if (numAmount > userBalance.available_balance) {
-      alert('Insufficient balance');
+      setErrorMessage('Insufficient balance');
       return;
     }
 
     // In a real app, this would process the withdrawal
-    alert(`Withdrawal request submitted!\n\nAmount: $${numAmount}\nMethod: ${method.name}\nProcessing time: ${method.processingTime}\n\n(This is a demo - in production this would process the actual withdrawal)`);
+    setSuccessMessage(`Withdrawal request submitted!\n\nAmount: ${numAmount} ef\nMethod: ${method.name}\nProcessing time: ${method.processingTime}\n\n(This is a demo - in production this would process the actual withdrawal)`);
 
     // Reset form
     setAmount('');
@@ -138,7 +144,7 @@ export default function WithdrawPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100'}`}>
       <Navbar />
       <div className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
@@ -165,14 +171,32 @@ export default function WithdrawPage() {
                 </Link>
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Withdraw Funds
-            </h1>
-            <p className="text-gray-600">Cash out your earnings to your preferred payment method</p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  Withdraw Funds
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300">Cash out your earnings to your preferred payment method</p>
+              </div>
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+              >
+                {isDarkMode ? (
+                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 001.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Balance Card */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mb-8">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">Available Balance</h2>
@@ -191,7 +215,7 @@ export default function WithdrawPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Withdrawal Methods */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Choose Payment Method</h3>
               <div className="space-y-3">
                 {withdrawalMethods.map((method) => (
@@ -226,7 +250,7 @@ export default function WithdrawPage() {
             </div>
 
             {/* Withdrawal Form */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Withdrawal Details</h3>
 
               {selectedMethod && (
@@ -247,7 +271,7 @@ export default function WithdrawPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Withdrawal Amount (ef)
                   </label>
                   <input
@@ -258,10 +282,10 @@ export default function WithdrawPage() {
                     placeholder="Enter ef amount"
                     min="0"
                     step="1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                   {selectedMethod && (
-                    <div className="mt-2 text-sm text-gray-600">
+                    <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                       Min: {withdrawalMethods.find(m => m.id === selectedMethod)?.minAmount} ef |
                       Max: {Math.max(0, userBalance.available_balance - (withdrawalMethods.find(m => m.id === selectedMethod)?.fee || 0)).toFixed(0)} ef
                     </div>
@@ -270,23 +294,23 @@ export default function WithdrawPage() {
 
                 {amount && selectedMethod && (
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm space-y-1">
+                    <div className="text-sm space-y-1 text-gray-900 dark:text-gray-100">
                       <div className="flex justify-between">
-                        <span>Amount:</span>
-                        <span>{parseFloat(amount).toFixed(0)} ef</span>
+                        <span className="text-gray-700 dark:text-gray-300">Amount:</span>
+                        <span className="font-medium">{parseFloat(amount).toFixed(0)} ef</span>
                       </div>
                       {(() => {
                         const method = withdrawalMethods.find(m => m.id === selectedMethod);
                         return method && method.fee > 0 && (
-                          <div className="flex justify-between text-red-600">
+                          <div className="flex justify-between text-red-600 dark:text-red-400">
                             <span>Fee:</span>
                             <span>-{method.fee} ef</span>
                           </div>
                         );
                       })()}
-                      <div className="border-t pt-1 flex justify-between font-semibold">
-                        <span>You'll receive:</span>
-                        <span>{(() => {
+                      <div className="border-t border-gray-300 dark:border-gray-600 pt-1 flex justify-between font-semibold">
+                        <span className="text-gray-700 dark:text-gray-300">You'll receive:</span>
+                        <span className="text-green-600 dark:text-green-400">{(() => {
                           const method = withdrawalMethods.find(m => m.id === selectedMethod);
                           return Math.max(0, parseFloat(amount) - (method?.fee || 0)).toFixed(0);
                         })()} ef</span>
@@ -295,12 +319,24 @@ export default function WithdrawPage() {
                   </div>
                 )}
 
+                {errorMessage && (
+                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                    {errorMessage}
+                  </div>
+                )}
+
+                {successMessage && (
+                  <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg whitespace-pre-line">
+                    {successMessage}
+                  </div>
+                )}
+
                 <button
                   onClick={handleWithdraw}
                   disabled={!selectedMethod || !amount || parseFloat(amount) <= 0}
                   className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
                     !selectedMethod || !amount || parseFloat(amount) <= 0
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400'
                       : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
                   }`}
                 >
@@ -321,7 +357,7 @@ function Navbar() {
   const { user, signOut } = useAuth();
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
