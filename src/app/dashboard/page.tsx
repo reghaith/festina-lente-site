@@ -83,7 +83,7 @@ export default function DashboardPage() {
                       Balance
                     </div>
                     <div className="text-blue-100 text-xs">
-                      ${loadingBalance ? '...' : userBalance.available_balance.toFixed(2)} available
+                      {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef available
                     </div>
                   </div>
                 </div>
@@ -109,7 +109,7 @@ export default function DashboardPage() {
                         Points Balance
                       </dt>
                       <dd className="text-2xl font-bold text-gray-900 mt-1">
-                        {loadingBalance ? '...' : userBalance.available_balance.toFixed(2)}
+                        {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef
                       </dd>
                     </dl>
                   </div>
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                         Total Earned
                       </dt>
                       <dd className="text-2xl font-medium text-gray-900">
-                        ${loadingBalance ? '...' : userBalance.total_earned.toFixed(2)}
+                        {loadingBalance ? '...' : userBalance.total_earned.toFixed(0)} ef
                       </dd>
                     </dl>
                   </div>

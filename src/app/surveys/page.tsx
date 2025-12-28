@@ -39,7 +39,7 @@ export default function SurveysPage() {
       {
         id: 'cpx_offers',
         title: 'CPX Research Surveys',
-        description: 'Complete surveys and offers from our trusted partner CPX Research. Earn real money for sharing your opinions.',
+            description: 'Complete surveys and offers from our trusted partner CPX Research. Earn ef points for sharing your opinions.',
         reward: 0, // Variable rewards
         time: '5-30 min',
         completed: false,
@@ -140,8 +140,9 @@ export default function SurveysPage() {
               <h3 className="font-semibold text-blue-900 mb-2">💰 How Earnings Work:</h3>
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• Complete any available surveys or offers</li>
-                <li>• Earnings are credited after approval (usually 24-48 hours)</li>
-                <li>• Check your dashboard to see updated balance</li>
+                <li>• Earnings are credited in ef points after approval (usually 24-48 hours)</li>
+                <li>• 1 USD from surveys = 700 ef points, bonuses = 1000 ef points</li>
+                <li>• Check your dashboard to see updated ef balance</li>
                 <li>• Withdraw funds once you reach the minimum threshold</li>
               </ul>
             </div>
@@ -190,7 +191,7 @@ export default function SurveysPage() {
                         <svg className="w-5 h-5 text-green-600 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
                         </svg>
-                        <span className="text-lg font-bold text-green-600">Variable Payouts</span>
+                        <span className="text-lg font-bold text-green-600">Variable Payouts (ef)</span>
                       </div>
                       <div className="flex items-center text-gray-500">
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">

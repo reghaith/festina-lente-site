@@ -158,7 +158,7 @@ export default function WithdrawPage() {
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold text-green-600">
-                  ${loadingBalance ? '...' : userBalance.available_balance.toFixed(2)}
+                  {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef
                 </div>
                 <div className="text-sm text-gray-500">
                   Available to withdraw
@@ -226,22 +226,22 @@ export default function WithdrawPage() {
               <div className="space-y-4">
                 <div>
                   <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
-                    Withdrawal Amount ($)
+                    Withdrawal Amount (ef)
                   </label>
                   <input
                     type="number"
                     id="amount"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Enter amount"
+                    placeholder="Enter ef amount"
                     min="0"
-                    step="0.01"
+                    step="1"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   {selectedMethod && (
                     <div className="mt-2 text-sm text-gray-600">
-                      Min: ${withdrawalMethods.find(m => m.id === selectedMethod)?.minAmount} |
-                      Max: ${(userBalance.available_balance - (withdrawalMethods.find(m => m.id === selectedMethod)?.fee || 0)).toFixed(2)}
+                      Min: {withdrawalMethods.find(m => m.id === selectedMethod)?.minAmount} ef |
+                      Max: {Math.max(0, userBalance.available_balance - (withdrawalMethods.find(m => m.id === selectedMethod)?.fee || 0)).toFixed(0)} ef
                     </div>
                   )}
                 </div>
@@ -251,23 +251,23 @@ export default function WithdrawPage() {
                     <div className="text-sm space-y-1">
                       <div className="flex justify-between">
                         <span>Amount:</span>
-                        <span>${parseFloat(amount).toFixed(2)}</span>
+                        <span>{parseFloat(amount).toFixed(0)} ef</span>
                       </div>
                       {(() => {
                         const method = withdrawalMethods.find(m => m.id === selectedMethod);
                         return method && method.fee > 0 && (
                           <div className="flex justify-between text-red-600">
                             <span>Fee:</span>
-                            <span>-${method.fee}</span>
+                            <span>-{method.fee} ef</span>
                           </div>
                         );
                       })()}
                       <div className="border-t pt-1 flex justify-between font-semibold">
                         <span>You'll receive:</span>
-                        <span>${(() => {
+                        <span>{(() => {
                           const method = withdrawalMethods.find(m => m.id === selectedMethod);
-                          return (parseFloat(amount) - (method?.fee || 0)).toFixed(2);
-                        })()}</span>
+                          return Math.max(0, parseFloat(amount) - (method?.fee || 0)).toFixed(0);
+                        })()} ef</span>
                       </div>
                     </div>
                   </div>
@@ -291,12 +291,12 @@ export default function WithdrawPage() {
           {/* Guidelines */}
           <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Withdrawal Guidelines</h3>
-            <ul className="space-y-2 text-gray-600 text-sm">
+              <ul className="space-y-2 text-gray-600 text-sm">
               <li>• Minimum withdrawal amounts vary by payment method</li>
               <li>• Processing times depend on the selected method</li>
               <li>• Some methods may have small fees</li>
               <li>• All withdrawals are subject to verification</li>
-              <li>• Points convert to cash at $0.01 per point</li>
+              <li>• ef points can be converted to cash or other rewards</li>
             </ul>
           </div>
         </div>

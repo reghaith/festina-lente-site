@@ -88,15 +88,16 @@ export async function POST(request: NextRequest) {
 
     const numericStatus = parseInt(status);
     const transactionId = trans_id;
-    const payoutAmount = parseFloat(amount_usd) || 0; // Use USD amount
-    const payoutCents = Math.round(payoutAmount * 100); // Convert to cents
+    const payoutUSD = parseFloat(amount_usd) || 0; // USD amount CPX paid
+    const payoutLocal = parseFloat(amount_local) || 0; // Amount in your currency (ef)
+    const payoutPoints = Math.round(payoutLocal); // Use local currency for user credits
 
-    console.log(`CPX Postback: User ${userId}, Status ${numericStatus}, Amount $${payoutAmount} (${payoutCents} cents), Transaction ${transactionId}`);
+    console.log(`CPX Postback: User ${userId}, Status ${numericStatus}, USD: $${payoutUSD}, Local: ${payoutLocal} ef, Points: ${payoutPoints}, Transaction ${transactionId}`);
 
     // Handle different status codes
     if (numericStatus === 1) {
       // Status 1 = completed - credit the user
-      console.log(`Crediting user ${userId} with ${payoutCents} cents`);
+      console.log(`Crediting user ${userId} with ${payoutPoints} ef points`);
 
       try {
         const recordResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/surveys/complete`, {
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
             userId: parseInt(userId),
             surveyId: offer_id || transactionId,
             surveyTitle: `CPX ${type || 'Survey'} ${offer_id || transactionId}`,
-            payoutCents,
+            payoutCents: payoutPoints, // Now using ef points instead of USD cents
             transactionId
           })
         });
