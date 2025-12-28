@@ -59,14 +59,12 @@ export default function SurveysPage() {
       if (data.success) {
         setSelectedSurvey(surveyId);
         setIframeUrl(data.iframeUrl);
-
-        // Show instructions to user
-        alert(`CPX offers loaded!\n\nComplete any available surveys to earn real money.\n\nPoints will be credited to your account after completion approval.`);
       } else {
-        alert('Failed to load surveys. Please try again.');
+        // Handle error silently or show a better UI notification
+        console.error('Failed to load surveys');
       }
     } catch (error) {
-      alert('Failed to load surveys. Please try again.');
+      console.error('Failed to load surveys:', error);
     }
   };
 

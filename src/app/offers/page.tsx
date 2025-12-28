@@ -233,6 +233,12 @@ function Navbar() {
             >
               Offers
             </Link>
+            <Link
+              href="/help"
+              className="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:bg-purple-50"
+            >
+              Help
+            </Link>
             <button
               onClick={() => signOut()}
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center"
