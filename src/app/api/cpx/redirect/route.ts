@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Return iframe URL with user ID - API key stays server-side
+    // CPX uses ext_user_id parameter for iframe embedding
     const iframeUrl = `https://offers.cpx-research.com/index.php?app_id=${CPX_APP_ID}&ext_user_id=earnflow_${userId}`;
 
     return NextResponse.json({
