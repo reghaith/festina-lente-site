@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // CPX Research webhook configuration
-const CPX_WEBHOOK_SECRET = process.env.CPX_WEBHOOK_SECRET;
+// Note: CPX doesn't provide a webhook secret. You create your own secret
+// and CPX uses it to generate MD5 hashes for validation
+const CPX_WEBHOOK_SECRET = process.env.CPX_WEBHOOK_SECRET || 'your_custom_secret_here';
 const CPX_API_KEY = process.env.CPX_API_KEY;
 
 // CPX IP whitelist for security
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest) {
       type              // type: out, complete, or bonus
     } = payload;
 
-    // Validate secure hash if webhook secret is provided
+    // Validate secure hash using CPX format: md5({trans_id}-{secret})
     if (CPX_WEBHOOK_SECRET && trans_id && secure_hash) {
       const crypto = await import('crypto');
       const expectedHash = crypto.createHash('md5')
