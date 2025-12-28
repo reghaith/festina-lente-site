@@ -127,9 +127,9 @@ export default function SurveysPage() {
               <iframe
                 src={iframeUrl}
                 width="100%"
-                height="800"
+                height="600"
                 frameBorder="0"
-                className="w-full"
+                className="w-full min-h-[600px] sm:min-h-[700px] md:min-h-[800px]"
                 title="CPX Research Surveys"
               />
             </div>

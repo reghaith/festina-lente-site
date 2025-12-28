@@ -292,7 +292,7 @@ export default function WithdrawPage() {
                         );
                       })()}
                       <div className="border-t border-gray-300 dark:border-gray-600 pt-1 flex justify-between font-semibold">
-                        <span className="text-gray-700 dark:text-gray-300">You'll receive:</span>
+                        <span className="text-gray-700 dark:text-gray-300">You&apos;ll receive:</span>
                         <span className="text-green-600 dark:text-green-400">{(() => {
                           const method = withdrawalMethods.find(m => m.id === selectedMethod);
                           return Math.max(0, parseFloat(amount) - (method?.fee || 0)).toFixed(0);

@@ -13,14 +13,19 @@ export function DarkModeProvider({ children }: { children: ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Load from localStorage on mount
     const saved = localStorage.getItem('darkMode');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (saved) {
-      setIsDarkMode(JSON.parse(saved));
+      const isSavedDark = JSON.parse(saved);
+      setIsDarkMode(isSavedDark);
+      if (isSavedDark) {
+        document.documentElement.classList.add('dark');
+      }
     } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setIsDarkMode(prefersDark);
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      }
     }
   }, []);
 
@@ -28,13 +33,16 @@ export function DarkModeProvider({ children }: { children: ReactNode }) {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
     localStorage.setItem('darkMode', JSON.stringify(newMode));
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   return (
     <DarkModeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
-      <div className={isDarkMode ? 'dark' : ''}>
-        {children}
-      </div>
+      {children}
     </DarkModeContext.Provider>
   );
 }

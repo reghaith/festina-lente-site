@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 import { AuthProvider } from '@/lib/auth';
 import { DarkModeProvider } from '@/lib/dark-mode';
 
@@ -38,6 +39,7 @@ export default function RootLayout({
       >
         <DarkModeProvider>
           <AuthProvider>
+            <Navbar />
             {children}
           </AuthProvider>
         </DarkModeProvider>

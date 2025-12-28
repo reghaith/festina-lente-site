@@ -260,7 +260,7 @@ export default function HelpPage() {
           {/* Contact Support */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-700 dark:to-purple-700 rounded-xl shadow-lg p-6 text-white">
             <h2 className="text-2xl font-bold mb-4">Need More Help?</h2>
-            <p className="mb-4">If you have any questions or need assistance, don't hesitate to reach out!</p>
+            <p className="mb-4">If you have any questions or need assistance, don&apos;t hesitate to reach out!</p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href="mailto:support@earnflow.com"
