@@ -61,48 +61,8 @@ export default function DashboardPage() {
       <Navbar />
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex space-x-3">
-                <Link
-                  href="/surveys"
-                  className="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" clipRule="evenodd" />
-                  </svg>
-                  Surveys
-                </Link>
-                <Link
-                  href="/offers"
-                  className="inline-flex items-center px-4 py-2 bg-warning text-white rounded-lg hover:bg-warning transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0v-1H3a1 1 0 010-2h1v-1a1 1 0 011-1zM12 2a1 1 0 010 2h3a1 1 0 011 1v3h1a1 1 0 010 2h-1v1a1 1 0 01-2 0v-1h-3a1 1 0 010-2h1V6a1 1 0 00-1-1h-1a1 1 0 010-2h1zm0 10a1 1 0 010 2h3a1 1 0 011 1v3h1a1 1 0 010 2h-1v1a1 1 0 01-2 0v-1h-3a1 1 0 010-2h1v-1a1 1 0 00-1-1h-1a1 1 0 010-2h1z" clipRule="evenodd" />
-                  </svg>
-                  Offers
-                </Link>
-                <Link
-                  href="/withdraw"
-                  className="inline-flex items-center px-4 py-2 bg-success text-white rounded-lg hover:bg-success transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                  Withdraw
-                </Link>
-                <Link
-                  href="/help"
-                  className="inline-flex items-center px-4 py-2 bg-warning text-white rounded-lg hover:bg-warning transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                  Help & FAQ
-                </Link>
-              </div>
-            </div>
-            <h1 className="text-3xl font-bold text-primary mb-2">
+           <div className="mb-8">
+             <h1 className="text-3xl font-bold text-primary mb-2">
               Dashboard
             </h1>
             <p className="text-secondary">Track your earnings and manage your account</p>
