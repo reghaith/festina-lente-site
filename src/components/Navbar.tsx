@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
-import { ThemeToggle } => './ThemeToggle';
+import { ThemeToggle } from './ThemeToggle';
 
 export default function Navbar() {
   const { user, loading, signOut } = useAuth();
