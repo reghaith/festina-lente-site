@@ -90,7 +90,7 @@ export default function SurveysPage() {
 
   if (loadingSurveys) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900">
+      <div className="min-h-screen bg-background transition-colors duration-300">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             <LoadingSpinner size="large" text="Loading available surveys..." />
@@ -102,23 +102,23 @@ export default function SurveysPage() {
 
   if (selectedSurvey && iframeUrl) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 transition-colors duration-300">
+      <div className="min-h-screen bg-background transition-colors duration-300">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Complete Surveys</h1>
-                <p className="text-gray-600">Earn money by completing surveys below</p>
+                <h1 className="text-2xl font-bold text-primary">Complete Surveys</h1>
+                <p className="text-secondary">Earn money by completing surveys below</p>
               </div>
               <button
                 onClick={closeIframe}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium"
+                className="bg-disabled hover:bg-disabled text-muted px-4 py-2 rounded-lg font-medium"
               >
                 ← Back to Surveys
               </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-surface-primary rounded-xl shadow-xl border border-divider overflow-hidden">
               <iframe
                 src={iframeUrl}
                 width="100%"
@@ -136,7 +136,7 @@ export default function SurveysPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       <Navbar />
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
@@ -145,7 +145,7 @@ export default function SurveysPage() {
               <div className="flex space-x-3">
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                  className="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                 >
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
@@ -154,7 +154,7 @@ export default function SurveysPage() {
                 </Link>
                 <Link
                   href="/help"
-                  className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                  className="inline-flex items-center px-4 py-2 bg-warning text-white rounded-lg hover:bg-warning transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                 >
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -163,18 +163,18 @@ export default function SurveysPage() {
                 </Link>
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-primary mb-2">
               Available Surveys
             </h1>
-            <p className="text-gray-600">
+            <p className="text-secondary">
               Complete surveys from our trusted partner CPX Research to earn real money
-              {error && <span className="text-red-500 ml-2">(Using demo data)</span>}
+              {error && <span className="text-error ml-2">(Using demo data)</span>}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {surveys.map((survey) => (
-              <div key={survey.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <div key={survey.id} className="bg-surface-primary rounded-xl shadow-xl border border-divider overflow-hidden hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">

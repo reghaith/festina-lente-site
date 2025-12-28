@@ -57,32 +57,68 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
+      <Navbar />
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex space-x-3">
+                <Link
+                  href="/surveys"
+                  className="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" clipRule="evenodd" />
+                  </svg>
+                  Surveys
+                </Link>
+                <Link
+                  href="/offers"
+                  className="inline-flex items-center px-4 py-2 bg-warning text-white rounded-lg hover:bg-warning transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0v-1H3a1 1 0 010-2h1v-1a1 1 0 011-1zM12 2a1 1 0 010 2h3a1 1 0 011 1v3h1a1 1 0 010 2h-1v1a1 1 0 01-2 0v-1h-3a1 1 0 010-2h1V6a1 1 0 00-1-1h-1a1 1 0 010-2h1zm0 10a1 1 0 010 2h3a1 1 0 011 1v3h1a1 1 0 010 2h-1v1a1 1 0 01-2 0v-1h-3a1 1 0 010-2h1v-1a1 1 0 00-1-1h-1a1 1 0 010-2h1z" clipRule="evenodd" />
+                  </svg>
+                  Offers
+                </Link>
+                <Link
+                  href="/withdraw"
+                  className="inline-flex items-center px-4 py-2 bg-success text-white rounded-lg hover:bg-success transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                  Withdraw
+                </Link>
+                <Link
+                  href="/help"
+                  className="inline-flex items-center px-4 py-2 bg-warning text-white rounded-lg hover:bg-warning transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  Help & FAQ
+                </Link>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-primary mb-2">
+              Dashboard
+            </h1>
+            <p className="text-secondary">Track your earnings and manage your account</p>
+          </div>
           {/* Welcome Section */}
-          <div className="mb-8 bg-surface-primary rounded-2xl shadow-xl border border-divider overflow-hidden">
-            <div className="bg-accent px-6 py-8">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-surface-secondary rounded-2xl flex items-center justify-center border-2 border-divider">
-                  <span className="text-2xl font-bold text-primary">
-                    {(user.name || user.email?.split('@')[0] || 'U').charAt(0).toUpperCase()}
-                  </span>
+          <div className="bg-surface-primary rounded-xl shadow-xl border border-divider p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-primary">Welcome back, {user.name || user.email?.split('@')[0] || 'User'}! 👋</h2>
+                <p className="text-secondary">Ready to earn more today? Check out your progress below.</p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-success">
+                  {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef
                 </div>
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-white mb-1">
-                    Welcome back, {user.name || user.email?.split('@')[0] || 'User'}! 👋
-                  </h1>
-                  <p className="text-white opacity-90">Ready to earn more today? Check out your progress below.</p>
-                </div>
-                <div className="hidden sm:block">
-                  <div className="bg-surface-secondary rounded-xl px-4 py-2 border border-divider">
-                    <div className="text-primary text-sm font-medium">
-                      Balance
-                    </div>
-                    <div className="text-secondary text-xs">
-                      {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef available
-                    </div>
-                  </div>
+                <div className="text-sm text-muted">
+                  Available balance
                 </div>
               </div>
             </div>
@@ -101,14 +137,14 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Points Balance
-                      </dt>
-                      <dd className="text-2xl font-bold text-gray-900 mt-1">
-                        {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef
-                      </dd>
-                    </dl>
+                     <dl>
+                       <dt className="text-sm font-medium text-muted">
+                         Points Balance
+                       </dt>
+                       <dd className="text-2xl font-bold text-primary mt-1">
+                         {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef
+                       </dd>
+                     </dl>
                   </div>
                 </div>
                 <div className="mt-4">
