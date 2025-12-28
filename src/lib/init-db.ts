@@ -59,12 +59,61 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create user balances table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS user_balances (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        available_balance DECIMAL(10,2) DEFAULT 0,
+        pending_balance DECIMAL(10,2) DEFAULT 0,
+        total_earned DECIMAL(10,2) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create CPX survey completions table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS cpx_survey_completions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        cpx_user_id VARCHAR(255) NOT NULL,
+        survey_id VARCHAR(255) NOT NULL,
+        survey_title VARCHAR(500),
+        payout_cents INTEGER NOT NULL,
+        points_credited DECIMAL(10,2) NOT NULL,
+        transaction_id VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'completed',
+        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, survey_id)
+      )
+    `);
+
+    // Create withdrawal requests table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS withdrawal_requests (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        amount DECIMAL(10,2) NOT NULL,
+        method VARCHAR(50) NOT NULL,
+        details JSONB,
+        status VARCHAR(50) DEFAULT 'pending',
+        processed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Create indexes (these will not error if they already exist)
     try {
       await db.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
       await db.query(`CREATE INDEX IF NOT EXISTS idx_surveys_user_id ON surveys(user_id)`);
       await db.query(`CREATE INDEX IF NOT EXISTS idx_offers_user_id ON offers(user_id)`);
       await db.query(`CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_user_balances_user_id ON user_balances(user_id)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_cpx_completions_user_id ON cpx_survey_completions(user_id)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_cpx_completions_survey_id ON cpx_survey_completions(survey_id)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_withdrawal_requests_user_id ON withdrawal_requests(user_id)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_withdrawal_requests_status ON withdrawal_requests(status)`);
     } catch (indexError) {
       console.log('⚠️ Some indexes may already exist, continuing...');
     }

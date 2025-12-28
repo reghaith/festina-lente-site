@@ -11,46 +11,18 @@ interface Survey {
   description: string;
   reward: number;
   time: string;
+  status?: string;
+  country?: string;
+  category?: string;
   completed: boolean;
 }
 
 export default function SurveysPage() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
-  const [surveys, setSurveys] = useState<Survey[]>([
-    {
-      id: '1',
-      title: 'Product Feedback Survey',
-      description: 'Help us improve our products by sharing your feedback',
-      reward: 25,
-      time: '5 min',
-      completed: false
-    },
-    {
-      id: '2',
-      title: 'Lifestyle Preferences',
-      description: 'Tell us about your daily habits and preferences',
-      reward: 30,
-      time: '7 min',
-      completed: false
-    },
-    {
-      id: '3',
-      title: 'Tech Usage Survey',
-      description: 'Share your technology usage patterns',
-      reward: 20,
-      time: '4 min',
-      completed: true
-    },
-    {
-      id: '4',
-      title: 'Entertainment Survey',
-      description: 'What are your favorite entertainment options?',
-      reward: 35,
-      time: '8 min',
-      completed: false
-    }
-  ]);
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [loadingSurveys, setLoadingSurveys] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -58,14 +30,72 @@ export default function SurveysPage() {
     }
   }, [loading, user, router]);
 
-  const takeSurvey = (surveyId: string) => {
-    // In a real app, this would navigate to the actual survey
-    alert(`Starting survey: ${surveys.find(s => s.id === surveyId)?.title}\n\nReward: $${surveys.find(s => s.id === surveyId)?.reward} points\n\n(This is a demo - in production this would open the actual survey)`);
+  useEffect(() => {
+    const fetchSurveys = async () => {
+      try {
+        const response = await fetch('/api/cpx/surveys');
+        const data = await response.json();
 
-    // Mark survey as completed for demo purposes
-    setSurveys(prev => prev.map(survey =>
-      survey.id === surveyId ? { ...survey, completed: true } : survey
-    ));
+        if (data.success) {
+          setSurveys(data.surveys.map((survey: any) => ({
+            ...survey,
+            completed: false // In real app, check completion status from database
+          })));
+        } else {
+          setError('Failed to load surveys');
+        }
+      } catch (err) {
+        setError('Failed to load surveys');
+        // Fallback to some mock data if API fails
+        setSurveys([
+          {
+            id: 'fallback_1',
+            title: 'Product Feedback Survey',
+            description: 'Help us improve our products by sharing your feedback',
+            reward: 1.25,
+            time: '12 min',
+            completed: false
+          }
+        ]);
+      } finally {
+        setLoadingSurveys(false);
+      }
+    };
+
+    if (user) {
+      fetchSurveys();
+    }
+  }, [user]);
+
+  const takeSurvey = async (surveyId: string) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch('/api/cpx/redirect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          surveyId,
+          userId: user.id
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Redirect to CPX survey
+        window.open(data.surveyUrl, '_blank');
+
+        // Show instructions to user
+        alert(`Survey opened in new tab!\n\nComplete the survey to earn $${surveys.find(s => s.id === surveyId)?.reward} points.\n\nPoints will be credited to your account after survey approval.`);
+      } else {
+        alert('Failed to start survey. Please try again.');
+      }
+    } catch (error) {
+      alert('Failed to start survey. Please try again.');
+    }
   };
 
   if (loading) {
@@ -83,6 +113,20 @@ export default function SurveysPage() {
     return null;
   }
 
+  if (loadingSurveys) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <Navbar />
+        <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading available surveys...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Navbar />
@@ -92,7 +136,10 @@ export default function SurveysPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Available Surveys
             </h1>
-            <p className="text-gray-600">Complete surveys to earn points and rewards</p>
+            <p className="text-gray-600">
+              Complete surveys from our partners to earn real rewards
+              {error && <span className="text-red-500 ml-2">(Using demo data)</span>}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -112,6 +159,7 @@ export default function SurveysPage() {
                   </div>
 
                   <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center">
                         <svg className="w-5 h-5 text-green-600 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -126,6 +174,12 @@ export default function SurveysPage() {
                         <span className="text-sm">{survey.time}</span>
                       </div>
                     </div>
+                    {survey.category && (
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        {survey.category}
+                      </span>
+                    )}
+                  </div>
                   </div>
 
                   <button
@@ -147,10 +201,12 @@ export default function SurveysPage() {
           <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Survey Guidelines</h3>
             <ul className="space-y-2 text-gray-600 text-sm">
-              <li>• Answer honestly for the best experience</li>
-              <li>• Complete surveys in one sitting when possible</li>
-              <li>• Points are credited immediately after completion</li>
-              <li>• Survey availability may change over time</li>
+              <li>• Surveys open in a new tab for security and tracking</li>
+              <li>• Answer all questions honestly and completely</li>
+              <li>• Points are credited after survey approval (usually 24-48 hours)</li>
+              <li>• Survey payout amounts may vary based on qualifications</li>
+              <li>• Keep your EarnFlow account open while taking surveys</li>
+              <li>• Survey availability changes frequently based on demand</li>
             </ul>
           </div>
         </div>

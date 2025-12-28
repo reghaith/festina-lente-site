@@ -2,18 +2,45 @@
 
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
+  const [userBalance, setUserBalance] = useState({
+    available_balance: 0,
+    pending_balance: 0,
+    total_earned: 0
+  });
+  const [loadingBalance, setLoadingBalance] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [loading, user, router]);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!user) return;
+
+      try {
+        const response = await fetch(`/api/balance?userId=${user.id}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setUserBalance(data.balance);
+        }
+      } catch (error) {
+        console.error('Failed to fetch balance:', error);
+      } finally {
+        setLoadingBalance(false);
+      }
+    };
+
+    fetchBalance();
+  }, [user]);
 
   if (loading) {
     return (
@@ -53,10 +80,10 @@ export default function DashboardPage() {
                 <div className="hidden sm:block">
                   <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/30">
                     <div className="text-white text-sm font-medium">
-                      Level 1
+                      Balance
                     </div>
                     <div className="text-blue-100 text-xs">
-                      0/100 points to next level
+                      ${loadingBalance ? '...' : userBalance.available_balance.toFixed(2)} available
                     </div>
                   </div>
                 </div>
@@ -82,7 +109,7 @@ export default function DashboardPage() {
                         Points Balance
                       </dt>
                       <dd className="text-2xl font-bold text-gray-900 mt-1">
-                        0
+                        {loadingBalance ? '...' : userBalance.available_balance.toFixed(2)}
                       </dd>
                     </dl>
                   </div>
@@ -150,8 +177,8 @@ export default function DashboardPage() {
                       <dt className="text-sm font-medium text-gray-500 truncate">
                         Total Earned
                       </dt>
-                      <dd className="text-2xl font-bold text-gray-900 mt-1">
-                        $0.00
+                      <dd className="text-2xl font-medium text-gray-900">
+                        ${loadingBalance ? '...' : userBalance.total_earned.toFixed(2)}
                       </dd>
                     </dl>
                   </div>

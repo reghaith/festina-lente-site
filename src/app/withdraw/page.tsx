@@ -20,13 +20,39 @@ export default function WithdrawPage() {
   const router = useRouter();
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
-  const [userBalance] = useState(125); // Mock balance
+  const [userBalance, setUserBalance] = useState({
+    available_balance: 0,
+    pending_balance: 0,
+    total_earned: 0
+  });
+  const [loadingBalance, setLoadingBalance] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [loading, user, router]);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!user) return;
+
+      try {
+        const response = await fetch(`/api/balance?userId=${user.id}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setUserBalance(data.balance);
+        }
+      } catch (error) {
+        console.error('Failed to fetch balance:', error);
+      } finally {
+        setLoadingBalance(false);
+      }
+    };
+
+    fetchBalance();
+  }, [user]);
 
   const withdrawalMethods: WithdrawalMethod[] = [
     {
@@ -81,7 +107,7 @@ export default function WithdrawPage() {
       return;
     }
 
-    if (numAmount > userBalance) {
+    if (numAmount > userBalance.available_balance) {
       alert('Insufficient balance');
       return;
     }
@@ -94,7 +120,7 @@ export default function WithdrawPage() {
     setSelectedMethod('');
   };
 
-  const maxWithdrawal = Math.max(...withdrawalMethods.map(m => userBalance - m.fee));
+  const maxWithdrawal = loadingBalance ? 0 : Math.max(...withdrawalMethods.map(m => userBalance.available_balance - m.fee));
 
   if (loading) {
     return (
@@ -131,8 +157,12 @@ export default function WithdrawPage() {
                 <p className="text-gray-600">Points you can withdraw</p>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-green-600">${userBalance.toFixed(2)}</div>
-                <div className="text-sm text-gray-500">≈ ${(userBalance * 0.01).toFixed(2)} USD</div>
+                <div className="text-3xl font-bold text-green-600">
+                  ${loadingBalance ? '...' : userBalance.available_balance.toFixed(2)}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Available to withdraw
+                </div>
               </div>
             </div>
           </div>
@@ -211,7 +241,7 @@ export default function WithdrawPage() {
                   {selectedMethod && (
                     <div className="mt-2 text-sm text-gray-600">
                       Min: ${withdrawalMethods.find(m => m.id === selectedMethod)?.minAmount} |
-                      Max: ${(userBalance - (withdrawalMethods.find(m => m.id === selectedMethod)?.fee || 0)).toFixed(2)}
+                      Max: ${(userBalance.available_balance - (withdrawalMethods.find(m => m.id === selectedMethod)?.fee || 0)).toFixed(2)}
                     </div>
                   )}
                 </div>
