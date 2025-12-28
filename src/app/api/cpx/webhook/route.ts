@@ -26,10 +26,19 @@ export async function POST(request: NextRequest) {
     //   return new Response('IP not whitelisted', { status: 403 });
     // }
 
-    // CPX sends postbacks as URL-encoded form data
+    // CPX can send parameters in both URL query params and POST body
+    const urlParams = request.nextUrl.searchParams;
     const formData = await request.formData();
+
+    // Combine URL params and form data (form data takes precedence)
     const payload: Record<string, string> = {};
 
+    // First, add URL parameters
+    for (const [key, value] of urlParams.entries()) {
+      payload[key] = value;
+    }
+
+    // Then add/overwite with form data
     for (const [key, value] of formData.entries()) {
       payload[key] = value.toString();
     }
