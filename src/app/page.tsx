@@ -6,8 +6,6 @@ import Navbar from '@/components/Navbar';
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 transition-colors duration-300">
-      <Navbar />
-
       {/* Hero Section */}
       <main className="relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -26,20 +24,27 @@ export default function HomePage() {
 
                 {/* CTA Buttons */}
                 <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start">
-                  <div className="rounded-md shadow-lg">
+                  <div className="rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
                     <Link
                       href="/register"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 md:py-4 md:text-lg md:px-10 shadow-lg"
+                      className="group w-full flex items-center justify-center px-8 py-4 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 md:py-5 md:text-lg md:px-12 shadow-lg"
                     >
-                      🚀 Start Earning Now
+                      <span className="mr-2">🚀</span>
+                      Start Earning Now
+                      <svg className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
                     </Link>
                   </div>
-                  <div className="mt-3 sm:mt-0 sm:ml-3">
+                  <div className="mt-4 sm:mt-0 sm:ml-4">
                     <Link
                       href="/login"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transform hover:scale-105 transition-all duration-200 md:py-4 md:text-lg md:px-10 shadow-md"
+                      className="group w-full flex items-center justify-center px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-base font-semibold rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-200 md:py-5 md:text-lg md:px-12 shadow-md hover:shadow-lg"
                     >
                       Sign In
+                      <svg className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                      </svg>
                     </Link>
                   </div>
                 </div>

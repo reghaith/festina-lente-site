@@ -39,7 +39,6 @@ export default function RootLayout({
       >
         <DarkModeProvider>
           <AuthProvider>
-            <Navbar />
             {children}
           </AuthProvider>
         </DarkModeProvider>

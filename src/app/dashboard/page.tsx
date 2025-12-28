@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function DashboardPage() {
   const { user, loading, signOut } = useAuth();
@@ -44,11 +45,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <LoadingSpinner size="large" text="Loading your dashboard..." />
       </div>
     );
   }
@@ -59,11 +57,10 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 transition-colors duration-300">
-      <Navbar />
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Welcome Section */}
-          <div className="mb-8 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="mb-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-6 py-8">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border-2 border-white/30">
@@ -93,7 +90,7 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Points Balance Card */}
-            <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+            <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-xl rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
               <div className="p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
