@@ -163,7 +163,7 @@ export default function OffersPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {offers.map((offer) => (
-              <div key={offer.id} className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <div key={offer.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -173,12 +173,12 @@ export default function OffersPage() {
                           {offer.type.charAt(0).toUpperCase() + offer.type.slice(1)}
                         </span>
                       </div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">{offer.title}</h3>
-                      <p className="text-gray-600 text-sm mb-2">{offer.description}</p>
-                      <p className="text-xs text-gray-500">by {offer.company}</p>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{offer.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">{offer.description}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">by {offer.company}</p>
                     </div>
                     {offer.completed && (
-                      <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                      <div className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-medium">
                         ✓ Completed
                       </div>
                     )}
@@ -189,7 +189,7 @@ export default function OffersPage() {
                       <svg className="w-5 h-5 text-green-600 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
                       </svg>
-                      <span className="text-xl font-bold text-green-600">${offer.reward}</span>
+                      <span className="text-xl font-bold text-green-600 dark:text-green-400">${offer.reward} ef</span>
                     </div>
                   </div>
 
@@ -198,7 +198,7 @@ export default function OffersPage() {
                     disabled={offer.completed}
                     className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
                       offer.completed
-                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                         : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
                     }`}
                   >

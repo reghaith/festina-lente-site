@@ -45,14 +45,14 @@ export default function HelpPage() {
               </svg>
               Back to Dashboard
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Help & FAQ
             </h1>
-            <p className="text-gray-600">Everything you need to know about earning with EarnFlow</p>
+            <p className="text-gray-600 dark:text-gray-300">Everything you need to know about earning with EarnFlow</p>
           </div>
 
           {/* How Earnings Work */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <span className="text-2xl mr-3">💰</span>
               How Earnings Work
@@ -100,7 +100,7 @@ export default function HelpPage() {
           </div>
 
           {/* Survey Guidelines */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <span className="text-2xl mr-3">📋</span>
               Survey Guidelines
@@ -144,7 +144,7 @@ export default function HelpPage() {
           </div>
 
           {/* Offer Guidelines */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <span className="text-2xl mr-3">🎯</span>
               Offer Guidelines
@@ -184,7 +184,7 @@ export default function HelpPage() {
           </div>
 
           {/* Withdrawal Guidelines */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <span className="text-2xl mr-3">💰</span>
               Withdrawal Guidelines
@@ -224,7 +224,7 @@ export default function HelpPage() {
           </div>
 
           {/* FAQ Section */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <span className="text-2xl mr-3">❓</span>
               Frequently Asked Questions
@@ -258,7 +258,7 @@ export default function HelpPage() {
           </div>
 
           {/* Contact Support */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-700 dark:to-purple-700 rounded-xl shadow-lg p-6 text-white">
             <h2 className="text-2xl font-bold mb-4">Need More Help?</h2>
             <p className="mb-4">If you have any questions or need assistance, don't hesitate to reach out!</p>
             <div className="flex flex-col sm:flex-row gap-4">

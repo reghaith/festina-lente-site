@@ -179,15 +179,15 @@ export default function SurveysPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {surveys.map((survey) => (
-              <div key={survey.id} className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <div key={survey.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{survey.title}</h3>
-                      <p className="text-gray-600 text-sm mb-4">{survey.description}</p>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{survey.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{survey.description}</p>
                     </div>
                     {survey.completed && (
-                      <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                      <div className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-medium">
                         ✓ Completed
                       </div>
                     )}
@@ -210,12 +210,12 @@ export default function SurveysPage() {
                         <span className="text-sm">{survey.time}</span>
                       </div>
                     </div>
-                    <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                    <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
                       🔒 Secure Platform
                     </div>
                   </div>
                     {survey.category && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
                         {survey.category}
                       </span>
                     )}
@@ -227,7 +227,7 @@ export default function SurveysPage() {
                     disabled={survey.completed}
                     className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
                       survey.completed
-                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                         : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
                     }`}
                   >

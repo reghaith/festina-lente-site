@@ -10,19 +10,19 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <main className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 sm:pb-16 md:pb-20 lg:pb-28 xl:pb-32">
-            <div className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-              <div className="text-center lg:w-full lg:max-w-4xl lg:text-left xl:w-full">
-                <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
-                  <span className="block xl:inline">Earn Real Money with</span>{' '}
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 xl:inline">
-                    EarnFlow
-                  </span>
-                </h1>
-                <p className="mt-3 text-base text-gray-600 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0 lg:text-lg xl:text-xl">
-                  Complete surveys, take offers, and earn real money from home. Join over <span className="font-semibold text-blue-600">10,000+ users</span> already earning with EarnFlow.
-                </p>
+      <div className="max-w-7xl mx-auto">
+        <div className="relative z-10 pb-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 sm:pb-16 md:pb-20 lg:pb-28 xl:pb-32 transition-colors duration-300">
+          <div className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+            <div className="text-center lg:w-full lg:max-w-4xl lg:text-left xl:w-full">
+              <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
+                <span className="block xl:inline">Earn Real Money with</span>{' '}
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 xl:inline">
+                  EarnFlow
+                </span>
+              </h1>
+              <p className="mt-3 text-base text-gray-600 dark:text-gray-300 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0 lg:text-lg xl:text-xl">
+                Complete surveys, take offers, and earn real money from home. Join over <span className="font-semibold text-blue-600 dark:text-blue-400">10,000+ users</span> already earning with EarnFlow.
+              </p>
 
                 {/* CTA Buttons */}
                 <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start">
@@ -37,7 +37,7 @@ export default function HomePage() {
                   <div className="mt-3 sm:mt-0 sm:ml-3">
                     <Link
                       href="/login"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transform hover:scale-105 transition-all duration-200 md:py-4 md:text-lg md:px-10 shadow-md"
+                      className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transform hover:scale-105 transition-all duration-200 md:py-4 md:text-lg md:px-10 shadow-md"
                     >
                       Sign In
                     </Link>
