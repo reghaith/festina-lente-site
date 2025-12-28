@@ -23,6 +23,8 @@ export default function SurveysPage() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loadingSurveys, setLoadingSurveys] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSurvey, setSelectedSurvey] = useState<string | null>(null);
+  const [iframeUrl, setIframeUrl] = useState<string>('');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -31,71 +33,48 @@ export default function SurveysPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
-    const fetchSurveys = async () => {
-      try {
-        const response = await fetch('/api/cpx/surveys');
-        const data = await response.json();
-
-        if (data.success) {
-          setSurveys(data.surveys.map((survey: any) => ({
-            ...survey,
-            completed: false // In real app, check completion status from database
-          })));
-        } else {
-          setError('Failed to load surveys');
-        }
-      } catch (err) {
-        setError('Failed to load surveys');
-        // Fallback to some mock data if API fails
-        setSurveys([
-          {
-            id: 'fallback_1',
-            title: 'Product Feedback Survey',
-            description: 'Help us improve our products by sharing your feedback',
-            reward: 1.25,
-            time: '12 min',
-            completed: false
-          }
-        ]);
-      } finally {
-        setLoadingSurveys(false);
+    // Load mock surveys for demonstration
+    // In production, you might show available offers or categories
+    setSurveys([
+      {
+        id: 'cpx_offers',
+        title: 'CPX Research Surveys',
+        description: 'Complete surveys and offers from our trusted partner CPX Research. Earn real money for sharing your opinions.',
+        reward: 0, // Variable rewards
+        time: '5-30 min',
+        completed: false,
+        category: 'All Categories'
       }
-    };
-
-    if (user) {
-      fetchSurveys();
-    }
-  }, [user]);
+    ]);
+    setLoadingSurveys(false);
+  }, []);
 
   const takeSurvey = async (surveyId: string) => {
     if (!user) return;
 
     try {
-      const response = await fetch('/api/cpx/redirect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          surveyId,
-          userId: user.id
-        })
-      });
-
+      const response = await fetch(`/api/cpx/redirect?userId=${user.id}`);
       const data = await response.json();
 
       if (data.success) {
-        // Redirect to CPX survey
-        window.open(data.surveyUrl, '_blank');
+        setSelectedSurvey(surveyId);
+        setIframeUrl(data.iframeUrl);
 
         // Show instructions to user
-        alert(`Survey opened in new tab!\n\nComplete the survey to earn $${surveys.find(s => s.id === surveyId)?.reward} points.\n\nPoints will be credited to your account after survey approval.`);
+        alert(`CPX offers loaded!\n\nComplete any available surveys to earn real money.\n\nPoints will be credited to your account after completion approval.`);
       } else {
-        alert('Failed to start survey. Please try again.');
+        alert('Failed to load surveys. Please try again.');
       }
     } catch (error) {
-      alert('Failed to start survey. Please try again.');
+      alert('Failed to load surveys. Please try again.');
     }
+  };
+
+  const closeIframe = () => {
+    setSelectedSurvey(null);
+    setIframeUrl('');
+    // Refresh surveys list
+    window.location.reload();
   };
 
   if (loading) {
@@ -127,6 +106,51 @@ export default function SurveysPage() {
     );
   }
 
+  if (selectedSurvey && iframeUrl) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <Navbar />
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-0">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Complete Surveys</h1>
+                <p className="text-gray-600">Earn money by completing surveys below</p>
+              </div>
+              <button
+                onClick={closeIframe}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium"
+              >
+                ← Back to Surveys
+              </button>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <iframe
+                src={iframeUrl}
+                width="100%"
+                height="800"
+                frameBorder="0"
+                className="w-full"
+                title="CPX Research Surveys"
+              />
+            </div>
+
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-900 mb-2">💰 How Earnings Work:</h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Complete any available surveys or offers</li>
+                <li>• Earnings are credited after approval (usually 24-48 hours)</li>
+                <li>• Check your dashboard to see updated balance</li>
+                <li>• Withdraw funds once you reach the minimum threshold</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Navbar />
@@ -137,7 +161,7 @@ export default function SurveysPage() {
               Available Surveys
             </h1>
             <p className="text-gray-600">
-              Complete surveys from our partners to earn real rewards
+              Complete surveys from our trusted partner CPX Research to earn real money
               {error && <span className="text-red-500 ml-2">(Using demo data)</span>}
             </p>
           </div>
@@ -160,12 +184,13 @@ export default function SurveysPage() {
 
                   <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center">
                         <svg className="w-5 h-5 text-green-600 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
                         </svg>
-                        <span className="text-lg font-bold text-green-600">${survey.reward}</span>
+                        <span className="text-lg font-bold text-green-600">Variable Payouts</span>
                       </div>
                       <div className="flex items-center text-gray-500">
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -174,6 +199,10 @@ export default function SurveysPage() {
                         <span className="text-sm">{survey.time}</span>
                       </div>
                     </div>
+                    <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      🔒 Secure Platform
+                    </div>
+                  </div>
                     {survey.category && (
                       <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                         {survey.category}
@@ -201,12 +230,13 @@ export default function SurveysPage() {
           <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Survey Guidelines</h3>
             <ul className="space-y-2 text-gray-600 text-sm">
-              <li>• Surveys open in a new tab for security and tracking</li>
-              <li>• Answer all questions honestly and completely</li>
-              <li>• Points are credited after survey approval (usually 24-48 hours)</li>
-              <li>• Survey payout amounts may vary based on qualifications</li>
-              <li>• Keep your EarnFlow account open while taking surveys</li>
-              <li>• Survey availability changes frequently based on demand</li>
+              <li>• 🔒 All surveys are securely embedded from our trusted partner CPX Research</li>
+              <li>• 💰 Earn real money - payouts credited after survey approval</li>
+              <li>• ⏱️ Survey lengths vary from 5-30 minutes with different reward amounts</li>
+              <li>• ✅ Answer honestly and completely for the best experience</li>
+              <li>• 🕐 Earnings appear in your account within 24-48 hours after approval</li>
+              <li>• 🎯 Survey availability changes based on current market research needs</li>
+              <li>• 🛡️ Your personal information is protected and secure</li>
             </ul>
           </div>
         </div>

@@ -1,49 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
-import jwt from 'jsonwebtoken';
 
-const CPX_API_KEY = 'e12b878968768145c304ff4580e643bc';
-const CPX_BASE_URL = 'https://api.cpx-research.com';
+// CPX Research configuration - secure server-side only
+const CPX_APP_ID = process.env.CPX_APP_ID || 'YOUR_APP_ID';
 
-export async function POST(request: NextRequest) {
-  let surveyId: string = '';
-
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json();
-    surveyId = body.surveyId;
-    const userId = body.userId;
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get('userId');
 
-    if (!surveyId || !userId) {
+    if (!userId) {
       return NextResponse.json({
         success: false,
-        error: 'Missing surveyId or userId'
+        error: 'User ID required'
       }, { status: 400 });
     }
 
-    // Get user info from our database (simplified - in real app, fetch from DB)
-    // For now, we'll create a unique identifier for CPX
-    const cpxUserId = `earnflow_${userId}`;
-
-    // Generate survey access URL from CPX
-    const surveyUrl = `${CPX_BASE_URL}/survey/${surveyId}/start?user_id=${cpxUserId}&api_key=${CPX_API_KEY}`;
+    // Return iframe URL with user ID - API key stays server-side
+    const iframeUrl = `https://offers.cpx-research.com/index.php?app_id=${CPX_APP_ID}&ext_user_id=earnflow_${userId}`;
 
     return NextResponse.json({
       success: true,
-      surveyUrl,
-      surveyId,
-      userId: cpxUserId
+      iframeUrl,
+      userId: `earnflow_${userId}`
     });
 
   } catch (error: any) {
-    console.error('CPX Survey Redirect Error:', error.message);
-
-    // Return fallback URL for development
-    const fallbackSurveyId = surveyId || 'demo';
+    console.error('CPX Redirect Error:', error.message);
     return NextResponse.json({
-      success: true,
-      surveyUrl: `https://demo.cpx-research.com/survey/${fallbackSurveyId}`,
-      surveyId: fallbackSurveyId,
-      fallback: true
-    });
+      success: false,
+      error: 'Failed to generate iframe URL'
+    }, { status: 500 });
   }
 }

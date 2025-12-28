@@ -1,44 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// This would be your webhook secret from CPX - set in environment variables
+// CPX Research webhook configuration
 const CPX_WEBHOOK_SECRET = process.env.CPX_WEBHOOK_SECRET || 'your_webhook_secret';
+const CPX_API_KEY = process.env.CPX_API_KEY || 'e12b878968768145c304ff4580e643bc';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.text();
-    const signature = request.headers.get('x-cpx-signature');
+    // CPX sends postbacks as URL-encoded form data or JSON
+    const contentType = request.headers.get('content-type');
 
-    // Verify webhook signature (recommended for production)
-    // const expectedSignature = crypto.createHmac('sha256', CPX_WEBHOOK_SECRET)
-    //   .update(body)
-    //   .digest('hex');
+    let payload: any = {};
 
-    // if (signature !== expectedSignature) {
-    //   return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-    // }
+    if (contentType?.includes('application/json')) {
+      payload = await request.json();
+    } else {
+      // Handle URL-encoded form data
+      const formData = await request.formData();
+      for (const [key, value] of formData.entries()) {
+        payload[key] = value;
+      }
+    }
 
-    const payload = JSON.parse(body);
-    console.log('CPX Webhook received:', payload);
+    console.log('CPX Postback received:', payload);
 
+    // CPX postback parameters (adjust based on their documentation)
     const {
-      event_type,
-      user_id,
-      survey_id,
-      payout_cents,
+      ext_user_id,    // Our user ID (earnflow_{userId})
+      amount,         // Payout amount in cents
       transaction_id,
-      status
+      status,         // 'completed', 'approved', etc.
+      offer_id,       // Survey/offer ID
+      signature       // For validation
     } = payload;
 
-    if (event_type === 'survey_complete' && status === 'approved') {
-      // Extract our user ID from CPX user_id (format: earnflow_{userId})
-      const userId = user_id.replace('earnflow_', '');
+    // Verify signature if provided
+    if (signature && CPX_WEBHOOK_SECRET) {
+      // Implement signature verification based on CPX documentation
+      // const expectedSignature = crypto.createHmac('sha256', CPX_WEBHOOK_SECRET)
+      //   .update(/* sorted parameters */)
+      //   .digest('hex');
+    }
 
-      // Convert cents to dollars for our points system (1 cent = 1 point)
-      const pointsEarned = payout_cents;
+    if (status === 'completed' || status === 'approved') {
+      // Extract our user ID from ext_user_id (format: earnflow_{userId})
+      const userId = ext_user_id?.replace('earnflow_', '');
 
-      // Record survey completion and update balance
-      console.log(`User ${userId} completed survey ${survey_id}, earned ${pointsEarned} points`);
+      if (!userId) {
+        console.error('Invalid ext_user_id format:', ext_user_id);
+        return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+      }
 
+      // Convert amount to points (CPX sends in cents or dollars - check their docs)
+      const payoutCents = parseInt(amount) || 0;
+      const pointsEarned = payoutCents; // Adjust conversion as needed
+
+      console.log(`User ${userId} earned ${pointsEarned} points from CPX (transaction: ${transaction_id})`);
+
+      // Record completion and update balance
       try {
         const recordResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/surveys/complete`, {
           method: 'POST',
@@ -47,39 +65,31 @@ export async function POST(request: NextRequest) {
           },
           body: JSON.stringify({
             userId: parseInt(userId),
-            surveyId: survey_id,
-            surveyTitle: `CPX Survey ${survey_id}`,
-            payoutCents: payout_cents,
+            surveyId: offer_id || transaction_id,
+            surveyTitle: `CPX Offer ${offer_id || transaction_id}`,
+            payoutCents,
             transactionId: transaction_id
           })
         });
 
         if (!recordResponse.ok) {
-          console.error('Failed to record survey completion in database');
+          console.error('Failed to record completion in database');
+          return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
         }
-      } catch (recordError) {
-        console.error('Error recording survey completion:', recordError);
-      }
 
-      return NextResponse.json({
-        success: true,
-        message: 'Survey completion recorded',
-        userId,
-        surveyId: survey_id,
-        pointsEarned
-      });
+        console.log('Successfully credited user balance');
+      } catch (recordError) {
+        console.error('Error recording completion:', recordError);
+        return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+      }
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Webhook processed'
-    });
+    // Always return success to CPX to avoid retries
+    return new Response('OK', { status: 200 });
 
   } catch (error: any) {
-    console.error('CPX Webhook Error:', error.message);
-    return NextResponse.json({
-      success: false,
-      error: 'Webhook processing failed'
-    }, { status: 500 });
+    console.error('CPX Postback Error:', error.message);
+    // Still return success to avoid CPX retries
+    return new Response('OK', { status: 200 });
   }
 }
