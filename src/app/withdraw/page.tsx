@@ -1,0 +1,322 @@
+'use client';
+
+import { useAuth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
+interface WithdrawalMethod {
+  id: string;
+  name: string;
+  description: string;
+  minAmount: number;
+  fee: number;
+  processingTime: string;
+  icon: string;
+}
+
+export default function WithdrawPage() {
+  const { user, loading, signOut } = useAuth();
+  const router = useRouter();
+  const [selectedMethod, setSelectedMethod] = useState<string>('');
+  const [amount, setAmount] = useState<string>('');
+  const [userBalance] = useState(125); // Mock balance
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [loading, user, router]);
+
+  const withdrawalMethods: WithdrawalMethod[] = [
+    {
+      id: 'paypal',
+      name: 'PayPal',
+      description: 'Withdraw to your PayPal account',
+      minAmount: 10,
+      fee: 0,
+      processingTime: '1-3 business days',
+      icon: '🅿️'
+    },
+    {
+      id: 'venmo',
+      name: 'Venmo',
+      description: 'Withdraw to your Venmo account',
+      minAmount: 5,
+      fee: 0,
+      processingTime: '1-2 business days',
+      icon: '💙'
+    },
+    {
+      id: 'bank',
+      name: 'Bank Transfer',
+      description: 'Direct deposit to your bank account',
+      minAmount: 25,
+      fee: 2.99,
+      processingTime: '3-5 business days',
+      icon: '🏦'
+    },
+    {
+      id: 'giftcard',
+      name: 'Gift Card',
+      description: 'Receive Amazon or other gift cards',
+      minAmount: 15,
+      fee: 1.99,
+      processingTime: '2-4 business days',
+      icon: '🎁'
+    }
+  ];
+
+  const handleWithdraw = () => {
+    const numAmount = parseFloat(amount);
+    const method = withdrawalMethods.find(m => m.id === selectedMethod);
+
+    if (!method) {
+      alert('Please select a withdrawal method');
+      return;
+    }
+
+    if (numAmount < method.minAmount) {
+      alert(`Minimum withdrawal amount for ${method.name} is $${method.minAmount}`);
+      return;
+    }
+
+    if (numAmount > userBalance) {
+      alert('Insufficient balance');
+      return;
+    }
+
+    // In a real app, this would process the withdrawal
+    alert(`Withdrawal request submitted!\n\nAmount: $${numAmount}\nMethod: ${method.name}\nProcessing time: ${method.processingTime}\n\n(This is a demo - in production this would process the actual withdrawal)`);
+
+    // Reset form
+    setAmount('');
+    setSelectedMethod('');
+  };
+
+  const maxWithdrawal = Math.max(...withdrawalMethods.map(m => userBalance - m.fee));
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <Navbar />
+      <div className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Withdraw Funds
+            </h1>
+            <p className="text-gray-600">Cash out your earnings to your preferred payment method</p>
+          </div>
+
+          {/* Balance Card */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Available Balance</h2>
+                <p className="text-gray-600">Points you can withdraw</p>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-green-600">${userBalance.toFixed(2)}</div>
+                <div className="text-sm text-gray-500">≈ ${(userBalance * 0.01).toFixed(2)} USD</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Withdrawal Methods */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Choose Payment Method</h3>
+              <div className="space-y-3">
+                {withdrawalMethods.map((method) => (
+                  <div
+                    key={method.id}
+                    onClick={() => setSelectedMethod(method.id)}
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                      selectedMethod === method.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-2xl">{method.icon}</span>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{method.name}</h4>
+                          <p className="text-sm text-gray-600">{method.description}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">Min: ${method.minAmount}</div>
+                        {method.fee > 0 && <div className="text-sm text-red-600">Fee: ${method.fee}</div>}
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Processing time: {method.processingTime}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Withdrawal Form */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Withdrawal Details</h3>
+
+              {selectedMethod && (
+                <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xl">
+                      {withdrawalMethods.find(m => m.id === selectedMethod)?.icon}
+                    </span>
+                    <span className="font-semibold text-blue-900">
+                      {withdrawalMethods.find(m => m.id === selectedMethod)?.name}
+                    </span>
+                  </div>
+                  <div className="mt-2 text-sm text-blue-700">
+                    Processing time: {withdrawalMethods.find(m => m.id === selectedMethod)?.processingTime}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+                    Withdrawal Amount ($)
+                  </label>
+                  <input
+                    type="number"
+                    id="amount"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    min="0"
+                    step="0.01"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {selectedMethod && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      Min: ${withdrawalMethods.find(m => m.id === selectedMethod)?.minAmount} |
+                      Max: ${(userBalance - (withdrawalMethods.find(m => m.id === selectedMethod)?.fee || 0)).toFixed(2)}
+                    </div>
+                  )}
+                </div>
+
+                {amount && selectedMethod && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="text-sm space-y-1">
+                      <div className="flex justify-between">
+                        <span>Amount:</span>
+                        <span>${parseFloat(amount).toFixed(2)}</span>
+                      </div>
+                      {(() => {
+                        const method = withdrawalMethods.find(m => m.id === selectedMethod);
+                        return method && method.fee > 0 && (
+                          <div className="flex justify-between text-red-600">
+                            <span>Fee:</span>
+                            <span>-${method.fee}</span>
+                          </div>
+                        );
+                      })()}
+                      <div className="border-t pt-1 flex justify-between font-semibold">
+                        <span>You'll receive:</span>
+                        <span>${(() => {
+                          const method = withdrawalMethods.find(m => m.id === selectedMethod);
+                          return (parseFloat(amount) - (method?.fee || 0)).toFixed(2);
+                        })()}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleWithdraw}
+                  disabled={!selectedMethod || !amount || parseFloat(amount) <= 0}
+                  className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                    !selectedMethod || !amount || parseFloat(amount) <= 0
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                  }`}
+                >
+                  Request Withdrawal
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Guidelines */}
+          <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Withdrawal Guidelines</h3>
+            <ul className="space-y-2 text-gray-600 text-sm">
+              <li>• Minimum withdrawal amounts vary by payment method</li>
+              <li>• Processing times depend on the selected method</li>
+              <li>• Some methods may have small fees</li>
+              <li>• All withdrawals are subject to verification</li>
+              <li>• Points convert to cash at $0.01 per point</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Navbar() {
+  const { signOut } = useAuth();
+
+  return (
+    <nav className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-2 group">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <span className="text-white font-bold text-sm">E</span>
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                EarnFlow
+              </span>
+            </Link>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/dashboard"
+              className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:bg-blue-50"
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/withdraw"
+              className="text-purple-600 bg-purple-50 px-3 py-2 rounded-lg text-sm font-medium"
+            >
+              Withdraw
+            </Link>
+            <button
+              onClick={() => signOut()}
+              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center"
+            >
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
+              </svg>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
