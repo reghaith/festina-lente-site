@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 transition-colors duration-300">
       <Navbar />
 
       {/* Hero Section */}
