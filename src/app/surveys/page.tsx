@@ -136,16 +136,6 @@ export default function SurveysPage() {
               />
             </div>
 
-            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-900 mb-2">💰 How Earnings Work:</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Complete any available surveys or offers</li>
-                <li>• Earnings are credited in ef points after approval (usually 24-48 hours)</li>
-                <li>• 1 USD from surveys = 700 ef points, bonuses = 1000 ef points</li>
-                <li>• Check your dashboard to see updated ef balance</li>
-                <li>• Withdraw funds once you reach the minimum threshold</li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>
@@ -159,15 +149,26 @@ export default function SurveysPage() {
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-              >
-                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                </svg>
-                Dashboard
-              </Link>
+              <div className="flex space-x-3">
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                  </svg>
+                  Dashboard
+                </Link>
+                <Link
+                  href="/help"
+                  className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  Help & FAQ
+                </Link>
+              </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Available Surveys
@@ -239,18 +240,7 @@ export default function SurveysPage() {
             ))}
           </div>
 
-          <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Survey Guidelines</h3>
-            <ul className="space-y-2 text-gray-600 text-sm">
-              <li>• 🔒 All surveys are securely embedded from our trusted partner CPX Research</li>
-              <li>• 💰 Earn real money - payouts credited after survey approval</li>
-              <li>• ⏱️ Survey lengths vary from 5-30 minutes with different reward amounts</li>
-              <li>• ✅ Answer honestly and completely for the best experience</li>
-              <li>• 🕐 Earnings appear in your account within 24-48 hours after approval</li>
-              <li>• 🎯 Survey availability changes based on current market research needs</li>
-              <li>• 🛡️ Your personal information is protected and secure</li>
-            </ul>
-          </div>
+
         </div>
       </div>
     </div>
