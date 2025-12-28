@@ -1,31 +1,124 @@
 @import "tailwindcss";
 
+/* EXACT COLOR SYSTEM - NON-NEGOTIABLE */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --primary: #171717;
-  --primary-foreground: #fafafa;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #171717;
-  --border: #e4e4e7;
+  /* Light Mode Colors */
+  --background: #FFFFFF;
+  --primary-surface: #F6F8FA;
+  --secondary-surface: #EAECEF;
+  --border: #D0D7DE;
+  --primary-text: #24292F;
+  --secondary-text: #57606A;
+  --muted-text: #6E7781;
+  --primary-accent: #0969DA;
+  --accent-hover: #0550AE;
+  --success: #1A7F37;
+  --warning: #9A6700;
+  --error: #CF222E;
+  --disabled: #8C959F;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --card: #0a0a0a;
-  --card-foreground: #ededed;
-  --primary: #fafafa;
-  --primary-foreground: #171717;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --border: #27272a;
+  /* Dark Mode Colors */
+  --background: #0D1117;
+  --primary-surface: #161B22;
+  --secondary-surface: #1F242C;
+  --border: #30363D;
+  --primary-text: #E6EDF3;
+  --secondary-text: #9BA3AF;
+  --muted-text: #7D8590;
+  --primary-accent: #2F81F7;
+  --accent-hover: #1F6FEB;
+  --success: #3FB950;
+  --warning: #D29922;
+  --error: #F85149;
+  --disabled: #484F58;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--primary-text);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* EXACT COLOR UTILITY CLASSES */
+.bg-surface-primary {
+  background-color: var(--primary-surface);
+}
+
+.bg-surface-secondary {
+  background-color: var(--secondary-surface);
+}
+
+.text-primary {
+  color: var(--primary-text);
+}
+
+.text-secondary {
+  color: var(--secondary-text);
+}
+
+.text-muted {
+  color: var(--muted-text);
+}
+
+.border-divider {
+  border-color: var(--border);
+}
+
+.btn-primary {
+  background-color: var(--primary-accent);
+  color: #FFFFFF;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-disabled {
+  background-color: var(--disabled);
+  color: var(--muted-text);
+  cursor: not-allowed;
+}
+
+.input-focus {
+  border-color: var(--primary-accent);
+}
+
+.input-error {
+  border-color: var(--error);
+}
+
+/* Additional color utilities */
+.text-accent {
+  color: var(--primary-accent);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.bg-accent {
+  background-color: var(--primary-accent);
+}
+
+.bg-success {
+  background-color: var(--success);
+}
+
+.bg-warning {
+  background-color: var(--warning);
+}
+
+.bg-error {
+  background-color: var(--error);
 }

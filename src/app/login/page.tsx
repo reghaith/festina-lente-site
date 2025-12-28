@@ -32,29 +32,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <Link href="/" className="inline-flex items-center">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">E</span>
             </div>
-            <span className="ml-2 text-2xl font-bold text-gray-900 dark:text-white">EarnFlow</span>
+            <span className="ml-2 text-2xl font-bold text-primary">EarnFlow</span>
           </Link>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-primary">
           Welcome back
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-center text-sm text-secondary">
           Sign in to your account to continue earning
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-xl sm:rounded-xl sm:px-10 border border-gray-100 dark:border-gray-700">
+        <div className="bg-surface-primary py-8 px-4 shadow-xl sm:rounded-xl sm:px-10 border border-divider">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-primary mb-2">
                 Email address
               </label>
               <div className="relative">
@@ -66,7 +66,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="appearance-none block w-full px-4 py-3 border border-divider bg-surface-secondary text-primary rounded-lg placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200"
                   placeholder="Enter your email"
                 />
                 <svg className="absolute right-3 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +76,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-primary mb-2">
                 Password
               </label>
               <div className="relative">
@@ -88,7 +88,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="appearance-none block w-full px-4 py-3 border border-divider bg-surface-secondary text-primary rounded-lg placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200"
                   placeholder="Enter your password"
                 />
                 <svg className="absolute right-3 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-200 hover:scale-105 active:scale-95"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 {loading ? (
                   <div className="flex items-center">
@@ -132,10 +132,10 @@ export default function LoginPage() {
             </div>
 
             <div className="text-center">
-              <span className="text-gray-500">Don&apos;t have an account?</span>{' '}
+              <span className="text-secondary">Don&apos;t have an account?</span>{' '}
               <Link
                 href="/register"
-                className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200"
+                className="font-semibold text-accent hover:text-accent-hover transition-colors duration-200"
               >
                 Sign up for free
               </Link>

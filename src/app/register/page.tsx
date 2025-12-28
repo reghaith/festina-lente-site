@@ -42,16 +42,16 @@ export default function RegisterPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <Link href="/" className="inline-flex items-center">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">E</span>
             </div>
-            <span className="ml-2 text-2xl font-bold text-gray-900">EarnFlow</span>
+            <span className="ml-2 text-2xl font-bold text-primary">EarnFlow</span>
           </Link>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-primary">
           Join EarnFlow today
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-center text-sm text-secondary">
           Create your account and start earning money
         </p>
       </div>

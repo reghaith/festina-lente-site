@@ -56,15 +56,15 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Welcome Section */}
-          <div className="mb-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-6 py-8">
+          <div className="mb-8 bg-surface-primary rounded-2xl shadow-xl border border-divider overflow-hidden">
+            <div className="bg-accent px-6 py-8">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border-2 border-white/30">
-                  <span className="text-2xl font-bold text-white">
+                <div className="w-16 h-16 bg-surface-secondary rounded-2xl flex items-center justify-center border-2 border-divider">
+                  <span className="text-2xl font-bold text-primary">
                     {(user.name || user.email?.split('@')[0] || 'U').charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -72,14 +72,14 @@ export default function DashboardPage() {
                   <h1 className="text-2xl font-bold text-white mb-1">
                     Welcome back, {user.name || user.email?.split('@')[0] || 'User'}! 👋
                   </h1>
-                  <p className="text-blue-100">Ready to earn more today? Check out your progress below.</p>
+                  <p className="text-white opacity-90">Ready to earn more today? Check out your progress below.</p>
                 </div>
                 <div className="hidden sm:block">
-                  <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/30">
-                    <div className="text-white text-sm font-medium">
+                  <div className="bg-surface-secondary rounded-xl px-4 py-2 border border-divider">
+                    <div className="text-primary text-sm font-medium">
                       Balance
                     </div>
-                    <div className="text-blue-100 text-xs">
+                    <div className="text-secondary text-xs">
                       {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef available
                     </div>
                   </div>
@@ -90,7 +90,7 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Points Balance Card */}
-            <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-xl rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div className="bg-surface-primary overflow-hidden shadow-xl rounded-xl border border-divider hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
               <div className="p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
