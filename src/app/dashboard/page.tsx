@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import Navbar from '@/components/Navbar';
 
 export default function DashboardPage() {
   const { user, loading, signOut } = useAuth();
@@ -45,7 +46,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <LoadingSpinner size="large" text="Loading your dashboard..." />
       </div>
     );
@@ -160,7 +161,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Completed Surveys Card */}
-            <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+            <div className="bg-surface-primary overflow-hidden shadow-xl rounded-xl border border-divider hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
               <div className="p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -172,21 +173,21 @@ export default function DashboardPage() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
+                      <dt className="text-sm font-medium text-muted truncate">
                         Completed Surveys
                       </dt>
-                      <dd className="text-2xl font-bold text-gray-900 mt-1">
+                      <dd className="text-2xl font-bold text-primary mt-1">
                         0
                       </dd>
                     </dl>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-muted">
                     <span>This month</span>
                     <span>0/5 goal</span>
                   </div>
-                  <div className="mt-2 bg-gray-200 rounded-full h-2">
+                  <div className="mt-2 bg-surface-secondary rounded-full h-2">
                     <div className="bg-gradient-to-r from-blue-400 to-indigo-500 h-2 rounded-full transition-all duration-300" style={{ width: '0%' }}></div>
                   </div>
                 </div>
@@ -194,7 +195,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Total Earned Card */}
-            <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+            <div className="bg-surface-primary overflow-hidden shadow-xl rounded-xl border border-divider hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
               <div className="p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -207,21 +208,21 @@ export default function DashboardPage() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
+                      <dt className="text-sm font-medium text-muted truncate">
                         Total Earned
                       </dt>
-                      <dd className="text-2xl font-medium text-gray-900">
+                      <dd className="text-2xl font-medium text-primary">
                         {loadingBalance ? '...' : userBalance.total_earned.toFixed(0)} ef
                       </dd>
                     </dl>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-muted">
                     <span>Lifetime earnings</span>
                     <span>$5.00 goal</span>
                   </div>
-                  <div className="mt-2 bg-gray-200 rounded-full h-2">
+                  <div className="mt-2 bg-surface-secondary rounded-full h-2">
                     <div className="bg-gradient-to-r from-purple-400 to-pink-500 h-2 rounded-full transition-all duration-300" style={{ width: '0%' }}></div>
                   </div>
                 </div>
@@ -230,28 +231,28 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-8">
-            <div className="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+            <div className="bg-surface-primary shadow-xl rounded-xl border border-divider overflow-hidden">
               <div className="px-6 py-5 sm:p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <h3 className="text-xl font-bold text-primary mb-6 flex items-center">
                   <svg className="w-6 h-6 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   Quick Actions
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Link href="/surveys" className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-4 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
+                  <Link href="/surveys" className="group bg-accent hover:bg-accent-hover text-white px-6 py-4 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
                     <svg className="w-5 h-5 mr-2 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                     </svg>
                     Take Survey
                   </Link>
-                  <Link href="/offers" className="group bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-4 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
+                  <Link href="/offers" className="group bg-success hover:bg-success text-white px-6 py-4 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
                     <svg className="w-5 h-5 mr-2 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clipRule="evenodd" />
                     </svg>
                     View Offers
                   </Link>
-                  <Link href="/withdraw" className="group bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-4 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
+                  <Link href="/withdraw" className="group bg-warning hover:bg-warning text-white px-6 py-4 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
                     <svg className="w-5 h-5 mr-2 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
                     </svg>
@@ -267,42 +268,4 @@ export default function DashboardPage() {
   );
 }
 
-function Navbar() {
-  const { signOut } = useAuth();
 
-  return (
-    <nav className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <span className="text-white font-bold text-sm">E</span>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                EarnFlow
-              </span>
-            </Link>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link
-              href="/dashboard"
-              className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:bg-blue-50"
-            >
-              Dashboard
-            </Link>
-            <button
-              onClick={() => signOut()}
-              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center"
-            >
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
-              </svg>
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}

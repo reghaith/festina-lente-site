@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import Navbar from '@/components/Navbar';
 
 interface Survey {
   id: string;
@@ -91,6 +92,7 @@ export default function SurveysPage() {
   if (loadingSurveys) {
     return (
       <div className="min-h-screen bg-background transition-colors duration-300">
+        <Navbar />
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             <LoadingSpinner size="large" text="Loading available surveys..." />
@@ -178,8 +180,8 @@ export default function SurveysPage() {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{survey.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{survey.description}</p>
+                      <h3 className="text-xl font-bold text-primary mb-2">{survey.title}</h3>
+                      <p className="text-secondary text-sm mb-4">{survey.description}</p>
                     </div>
                     {survey.completed && (
                       <div className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-medium">
@@ -222,8 +224,8 @@ export default function SurveysPage() {
                     disabled={survey.completed}
                     className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
                       survey.completed
-                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                        ? 'bg-disabled text-muted cursor-not-allowed'
+                        : 'bg-accent hover:bg-accent-hover text-white shadow-lg hover:shadow-xl transform hover:scale-105'
                     }`}
                   >
                     {survey.completed ? 'Completed' : 'Take Survey'}
@@ -240,48 +242,3 @@ export default function SurveysPage() {
   );
 }
 
-function Navbar() {
-  const { user, signOut } = useAuth();
-
-  return (
-    <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href={user ? "/dashboard" : "/"} className="flex items-center space-x-2 group hover:opacity-80 transition-opacity duration-200">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <span className="text-white font-bold text-sm">E</span>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                EarnFlow
-              </span>
-            </Link>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link
-              href="/dashboard"
-              className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:bg-blue-50"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/surveys"
-              className="text-blue-600 bg-blue-50 px-3 py-2 rounded-lg text-sm font-medium"
-            >
-              Surveys
-            </Link>
-            <button
-              onClick={() => signOut()}
-              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center"
-            >
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
-              </svg>
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
