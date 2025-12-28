@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // CPX Research configuration - API key stays server-side only
-const CPX_APP_ID = process.env.CPX_APP_ID || 'YOUR_APP_ID';
-const CPX_API_KEY = process.env.CPX_API_KEY || 'e12b878968768145c304ff4580e643bc';
+const CPX_APP_ID = process.env.CPX_APP_ID;
+const CPX_API_KEY = process.env.CPX_API_KEY;
 
 export async function GET(request: NextRequest) {
+  if (!CPX_APP_ID) {
+    return NextResponse.json({
+      success: false,
+      error: 'CPX_APP_ID environment variable not set'
+    }, { status: 500 });
+  }
+
   // Return iframe configuration instead of API data
   // This keeps the API key secure server-side
   return NextResponse.json({
