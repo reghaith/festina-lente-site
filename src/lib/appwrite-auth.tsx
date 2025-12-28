@@ -1,5 +1,7 @@
 'use client';
 
+'use client';
+
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { account } from '@/lib/appwrite';
 import { ID, Models } from 'appwrite';

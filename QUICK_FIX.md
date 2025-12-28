@@ -1,35 +1,41 @@
-# 🚨 QUICK FIX: Add PostgreSQL to Railway
+# 🚀 QUICK FIX COMMANDS
 
-## PROBLEM: `ECONNREFUSED` = No database connection
+## You're already logged in and linked! Run these:
 
-## SOLUTION (3 minutes):
+```bash
+# Check current services
+railway service
 
-### 1. Open Railway Dashboard
-Go to: https://railway.app/dashboard
-Select your EarnFlow project
+# Add PostgreSQL (if not shown)
+railway add postgres
 
-### 2. Add PostgreSQL Database
-- Click **"+ Add"** button
-- Choose **"Database"**
-- Select **"PostgreSQL"**
-- Click **"Add PostgreSQL"**
+# Set JWT secret
+railway variables set JWT_SECRET=superSecretJWTKey123!@#$%^&*()
 
-### 3. Wait & Check Variables
-- Wait 2 minutes for provisioning
-- Go to **"Variables"** tab
-- Confirm `DATABASE_URL` is there ✅
+# Check variables (should show DATABASE_URL)
+railway variables
 
-### 4. Redeploy
-- Go to **"Deployments"** tab
-- Click **"Redeploy"** 
-- Wait for success ✅
+# Redeploy
+railway up
 
-### 5. Test Registration Again
-Try registering: `test@earnflow.com` / `password123`
+# Get your site URL
+railway domain
+```
 
-## IF STILL BROKEN:
-- Check Railway logs for errors
-- Verify DATABASE_URL format is correct
-- Make sure PostgreSQL shows "Running" status
+## THEN TEST:
+```bash
+curl -X POST https://your-site-url/api/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"working@test.com","password":"password123","name":"Working"}'
+```
 
-**This will fix the connection error!** 🎯
+## IF DATABASE_URL STILL MISSING:
+```bash
+# Get postgres variables
+railway variables --service postgres
+
+# Manually set DATABASE_URL
+railway variables set DATABASE_URL=postgresql://[PGUSER]:[PGPASSWORD]@[PGHOST]:[PGPORT]/[PGDATABASE]
+```
+
+**Run these commands in order!** 🎯
