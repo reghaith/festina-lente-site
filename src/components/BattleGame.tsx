@@ -4,6 +4,18 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
+interface UnitType {
+  health: number;
+  attack: number;
+  attackSpeed: number;
+  speed: number;
+  name: string;
+  cost: number;
+  sprite: string;
+  icon: string;
+  healAmount?: number; // Optional for healers
+}
+
 interface Unit {
   id: string;
   type: keyof typeof UNIT_TYPES;
@@ -31,7 +43,7 @@ interface GameState {
   battleLog: string[];
 }
 
-const UNIT_TYPES = {
+const UNIT_TYPES: Record<string, UnitType> = {
   // Blue team units
   soldier: {
     health: 100,
