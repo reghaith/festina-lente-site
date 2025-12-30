@@ -344,11 +344,7 @@ export function BattleGameRTS() {
     return enemyUnits;
   };
 
-  const startGame = () => {
-    // Start setup phase music
-    soundManager.startSetupMusic();
-    setGameState(prev => ({ ...prev, phase: 'setup' }));
-  };
+  const startGame = () => setGameState(prev => ({ ...prev, phase: 'setup' }));
   
   const startBattle = () => {
     if (gameState.playerUnits.length === 0) return;
@@ -686,40 +682,6 @@ export function BattleGameRTS() {
             </div>
           );
         })}
-      </div>
-
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2">
-        <div className={`${glassPanel} rounded-xl p-6 space-y-4`}>
-          <div className="flex items-center space-x-4">
-            <div className="text-white font-bold text-sm">FORMATIONS:</div>
-            {(['line', 'box', 'wedge', 'free'] as Formation[]).map((formation, idx) => (
-              <button key={formation} onClick={() => applyFormation(formation)} className={`px-4 py-2 rounded-lg font-bold transition-all duration-200 hover:transform hover:-translate-y-1 ${gameState.formation === formation ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/50' : 'bg-slate-700 text-gray-300 hover:bg-slate-600'}`}>
-                <div className="text-xs text-gray-400">{idx + 1}</div>
-                <div className="uppercase text-sm">{formation}</div>
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-white font-bold text-sm">ABILITIES:</div>
-            {([
-              { type: 'charge' as AbilityType, key: 'Q', name: 'Charge', icon: '⚡' },
-              { type: 'volley' as AbilityType, key: 'W', name: 'Volley', icon: '🏹' },
-              { type: 'shield' as AbilityType, key: 'E', name: 'Shield', icon: '🛡️' }
-            ]).map(ability => {
-              const selectedWithAbility = selectedUnits.filter(u => u.abilityType === ability.type);
-              const anyCooldown = selectedWithAbility.some(u => u.abilityCooldown > 0);
-              const anyActive = selectedWithAbility.some(u => u.abilityActive);
-              return (
-                <button key={ability.type} onClick={() => activateAbility(ability.type)} disabled={selectedWithAbility.length === 0 || anyCooldown} className={`px-6 py-3 rounded-lg font-bold transition-all duration-200 hover:transform hover:-translate-y-1 ${anyActive ? 'bg-green-600 text-white shadow-lg shadow-green-500/50' : selectedWithAbility.length === 0 || anyCooldown ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 shadow-lg'}`}>
-                  <div className="text-xs text-gray-300">{ability.key}</div>
-                  <div className="text-2xl">{ability.icon}</div>
-                  <div className="text-xs">{ability.name}</div>
-                </button>
-              );
-            })}
-          </div>
-          {selectedUnits.length > 0 && <div className="text-center text-gray-300 text-sm">{selectedUnits.length} unit{selectedUnits.length > 1 ? 's' : ''} selected</div>}
-        </div>
       </div>
     </div>
   );
