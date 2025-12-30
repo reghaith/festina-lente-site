@@ -33,63 +33,85 @@ interface GameState {
 
 const UNIT_TYPES = {
   // Blue team units
-  soldier: { 
-    health: 100, 
-    attack: 15, 
+  soldier: {
+    health: 100,
+    attack: 15,
     attackSpeed: 1000,
     speed: 2,
-    name: 'Soldier', 
+    name: 'Soldier',
     cost: 10,
     sprite: '/blue_soldier.png',
     icon: '/icon_sword.png'
   },
-  archer: { 
-    health: 70, 
-    attack: 25, 
+  archer: {
+    health: 70,
+    attack: 25,
     attackSpeed: 800,
     speed: 1.5,
-    name: 'Archer', 
+    name: 'Archer',
     cost: 20,
     sprite: '/blue_soldier.png',
     icon: '/icon_sword.png'
   },
-  tank: { 
-    health: 150, 
-    attack: 10, 
+  healer: {
+    health: 80,
+    attack: 0, // Healers don't attack, they heal
+    attackSpeed: 1200,
+    speed: 1.2,
+    name: 'Healer',
+    cost: 25,
+    sprite: '/blue_soldier.png',
+    icon: '/icon_sword.png',
+    healAmount: 20 // Custom property for healing
+  },
+  tank: {
+    health: 150,
+    attack: 10,
     attackSpeed: 1500,
     speed: 1,
-    name: 'Tank', 
+    name: 'Tank',
     cost: 30,
     sprite: '/blue_soldier.png',
     icon: '/icon_sword.png'
   },
   // Red team units (same stats for AI)
-  red_soldier: { 
-    health: 100, 
-    attack: 15, 
+  red_soldier: {
+    health: 100,
+    attack: 15,
     attackSpeed: 1000,
     speed: 2,
-    name: 'Soldier', 
+    name: 'Soldier',
     cost: 10,
     sprite: '/red_soldier.png',
     icon: '/icon_sword.png'
   },
-  red_archer: { 
-    health: 70, 
-    attack: 25, 
+  red_archer: {
+    health: 70,
+    attack: 25,
     attackSpeed: 800,
     speed: 1.5,
-    name: 'Archer', 
+    name: 'Archer',
     cost: 20,
     sprite: '/red_soldier.png',
     icon: '/icon_sword.png'
   },
-  red_tank: { 
-    health: 150, 
-    attack: 10, 
+  red_healer: {
+    health: 80,
+    attack: 0,
+    attackSpeed: 1200,
+    speed: 1.2,
+    name: 'Healer',
+    cost: 25,
+    sprite: '/red_soldier.png',
+    icon: '/icon_sword.png',
+    healAmount: 20
+  },
+  red_tank: {
+    health: 150,
+    attack: 10,
     attackSpeed: 1500,
     speed: 1,
-    name: 'Tank', 
+    name: 'Tank',
     cost: 30,
     sprite: '/red_soldier.png',
     icon: '/icon_sword.png'
@@ -217,7 +239,7 @@ export function BattleGame() {
 
   const generateEnemyUnits = () => {
     const enemyUnits: Unit[] = [];
-    const enemyTypes: (keyof typeof UNIT_TYPES)[] = ['red_soldier', 'red_archer', 'red_tank'];
+    const enemyTypes: (keyof typeof UNIT_TYPES)[] = ['red_soldier', 'red_archer', 'red_healer', 'red_tank'];
     
     // Generate 3-5 random enemy units based on remaining gold
     let remainingGold = gameState.enemyGold;
@@ -300,95 +322,131 @@ export function BattleGame() {
       let updatedEnemyUnits = [...prev.enemyUnits];
       const newLog = [...prev.battleLog];
 
-      // Update player units
-      updatedPlayerUnits = updatedPlayerUnits.map(unit => {
-        const nearestEnemy = findNearestEnemy(unit, updatedEnemyUnits);
-        
-        if (!nearestEnemy) return unit;
+       // Update player units
+       updatedPlayerUnits = updatedPlayerUnits.map(unit => {
+         const unitType = UNIT_TYPES[unit.type];
+         const isHealer = unit.type === 'healer';
 
-        const distance = getDistance(unit.x, unit.y, nearestEnemy.x, nearestEnemy.y);
+         // Healers target allies, others target enemies
+         const targetUnits = isHealer ? updatedPlayerUnits : updatedEnemyUnits;
+         const nearestTarget = findNearestEnemy(unit, targetUnits);
 
-        // If close enough, attack
-        if (distance <= COLLISION_DISTANCE) {
-          if (currentTime - unit.lastAttackTime >= unit.attackSpeed) {
-            nearestEnemy.health -= unit.attack;
-            
-            // Play hit sound
-            if (sfxRef.current) {
-              sfxRef.current.currentTime = 0;
-              sfxRef.current.play().catch(() => {});
-            }
+         if (!nearestTarget) return unit;
 
-            if (nearestEnemy.health <= 0) {
-              newLog.push(`💀 ${UNIT_TYPES[nearestEnemy.type].name} defeated!`);
-            }
+         const distance = getDistance(unit.x, unit.y, nearestTarget.x, nearestTarget.y);
 
-            return {
-              ...unit,
-              lastAttackTime: currentTime,
-              isAttacking: true
-            };
-          }
-          return { ...unit, isAttacking: false };
-        }
+         // If close enough, perform action (attack or heal)
+         if (distance <= COLLISION_DISTANCE) {
+           if (currentTime - unit.lastAttackTime >= unit.attackSpeed) {
+             if (isHealer) {
+               // Heal the ally
+               const healAmount = unitType.healAmount || 20;
+               const oldHealth = nearestTarget.health;
+               nearestTarget.health = Math.min(nearestTarget.health + healAmount, nearestTarget.maxHealth);
+               const actualHeal = nearestTarget.health - oldHealth;
 
-        // Move towards enemy
-        const dx = nearestEnemy.x - unit.x;
-        const dy = nearestEnemy.y - unit.y;
-        const angle = Math.atan2(dy, dx);
+               if (actualHeal > 0) {
+                 newLog.push(`💚 ${UNIT_TYPES[nearestTarget.type].name} healed for ${actualHeal} HP!`);
+               }
+             } else {
+               // Attack the enemy
+               nearestTarget.health -= unit.attack;
 
-        return {
-          ...unit,
-          x: unit.x + Math.cos(angle) * unit.speed,
-          y: unit.y + Math.sin(angle) * unit.speed,
-          isAttacking: false
-        };
-      });
+               // Play hit sound
+               if (sfxRef.current) {
+                 sfxRef.current.currentTime = 0;
+                 sfxRef.current.play().catch(() => {});
+               }
+
+               if (nearestTarget.health <= 0) {
+                 newLog.push(`💀 ${UNIT_TYPES[nearestTarget.type].name} defeated!`);
+               }
+             }
+
+             return {
+               ...unit,
+               lastAttackTime: currentTime,
+               isAttacking: true
+             };
+           }
+           return { ...unit, isAttacking: false };
+         }
+
+         // Move towards target
+         const dx = nearestTarget.x - unit.x;
+         const dy = nearestTarget.y - unit.y;
+         const angle = Math.atan2(dy, dx);
+
+         return {
+           ...unit,
+           x: unit.x + Math.cos(angle) * unit.speed,
+           y: unit.y + Math.sin(angle) * unit.speed,
+           isAttacking: false
+         };
+       });
 
       // Update enemy units
-      updatedEnemyUnits = updatedEnemyUnits.map(unit => {
-        const nearestEnemy = findNearestEnemy(unit, updatedPlayerUnits);
-        
-        if (!nearestEnemy) return unit;
+       updatedEnemyUnits = updatedEnemyUnits.map(unit => {
+         const unitType = UNIT_TYPES[unit.type];
+         const isHealer = unit.type === 'red_healer';
 
-        const distance = getDistance(unit.x, unit.y, nearestEnemy.x, nearestEnemy.y);
+         // Healers target allies, others target enemies
+         const targetUnits = isHealer ? updatedEnemyUnits : updatedPlayerUnits;
+         const nearestTarget = findNearestEnemy(unit, targetUnits);
 
-        // If close enough, attack
-        if (distance <= COLLISION_DISTANCE) {
-          if (currentTime - unit.lastAttackTime >= unit.attackSpeed) {
-            nearestEnemy.health -= unit.attack;
-            
-            // Play hit sound
-            if (sfxRef.current) {
-              sfxRef.current.currentTime = 0;
-              sfxRef.current.play().catch(() => {});
-            }
+         if (!nearestTarget) return unit;
 
-            if (nearestEnemy.health <= 0) {
-              newLog.push(`💀 ${UNIT_TYPES[nearestEnemy.type].name} defeated!`);
-            }
+         const distance = getDistance(unit.x, unit.y, nearestTarget.x, nearestTarget.y);
 
-            return {
-              ...unit,
-              lastAttackTime: currentTime,
-              isAttacking: true
-            };
-          }
-          return { ...unit, isAttacking: false };
-        }
+         // If close enough, perform action (attack or heal)
+         if (distance <= COLLISION_DISTANCE) {
+           if (currentTime - unit.lastAttackTime >= unit.attackSpeed) {
+             if (isHealer) {
+               // Heal the ally
+               const healAmount = unitType.healAmount || 20;
+               const oldHealth = nearestTarget.health;
+               nearestTarget.health = Math.min(nearestTarget.health + healAmount, nearestTarget.maxHealth);
+               const actualHeal = nearestTarget.health - oldHealth;
 
-        // Move towards enemy
-        const dx = nearestEnemy.x - unit.x;
-        const dy = nearestEnemy.y - unit.y;
-        const angle = Math.atan2(dy, dx);
+               if (actualHeal > 0) {
+                 newLog.push(`💚 ${UNIT_TYPES[nearestTarget.type].name} healed for ${actualHeal} HP!`);
+               }
+             } else {
+               // Attack the player unit
+               nearestTarget.health -= unit.attack;
 
-        return {
-          ...unit,
-          x: unit.x + Math.cos(angle) * unit.speed,
-          y: unit.y + Math.sin(angle) * unit.speed,
-          isAttacking: false
-        };
-      });
+               // Play hit sound
+               if (sfxRef.current) {
+                 sfxRef.current.currentTime = 0;
+                 sfxRef.current.play().catch(() => {});
+               }
+
+               if (nearestTarget.health <= 0) {
+                 newLog.push(`💀 ${UNIT_TYPES[nearestTarget.type].name} defeated!`);
+               }
+             }
+
+             return {
+               ...unit,
+               lastAttackTime: currentTime,
+               isAttacking: true
+             };
+           }
+           return { ...unit, isAttacking: false };
+         }
+
+         // Move towards target
+         const dx = nearestTarget.x - unit.x;
+         const dy = nearestTarget.y - unit.y;
+         const angle = Math.atan2(dy, dx);
+
+         return {
+           ...unit,
+           x: unit.x + Math.cos(angle) * unit.speed,
+           y: unit.y + Math.sin(angle) * unit.speed,
+           isAttacking: false
+         };
+       });
 
       // Remove dead units
       updatedPlayerUnits = updatedPlayerUnits.filter(u => u.health > 0);
@@ -701,7 +759,7 @@ export function BattleGame() {
       <div className="h-16 bg-gray-900 border-b-4 border-gray-700 flex items-center justify-between px-8">
         {/* Left - Blue Team Units */}
         <div className="flex items-center space-x-2">
-          {(['soldier', 'archer', 'tank'] as const).map((unitType) => {
+          {(['soldier', 'archer', 'healer', 'tank'] as const).map((unitType) => {
             const unit = UNIT_TYPES[unitType];
             return (
               <button
@@ -738,7 +796,7 @@ export function BattleGame() {
         
         {/* Right - Red Team Units (preview only) */}
         <div className="flex items-center space-x-2">
-          {(['red_soldier', 'red_archer', 'red_tank'] as const).map((unitType) => {
+          {(['red_soldier', 'red_archer', 'red_healer', 'red_tank'] as const).map((unitType) => {
             const unit = UNIT_TYPES[unitType];
             return (
               <div
