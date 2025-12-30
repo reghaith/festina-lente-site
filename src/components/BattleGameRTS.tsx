@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { soundManager } from '@/lib/sound-manager';
 
 // ==================== TYPES ====================
 type Formation = 'line' | 'box' | 'wedge' | 'free';
@@ -83,64 +84,8 @@ const ABILITY_EFFECTS = {
 };
 
 // ==================== AUDIO MANAGER ====================
-class AudioManager {
-  private bgMusic: HTMLAudioElement | null = null;
-  private bgMusicFallback: HTMLAudioElement | null = null;
-  private sounds: Record<string, { main: HTMLAudioElement; fallback: HTMLAudioElement }> = {};
-
-  constructor() {
-    if (typeof window === 'undefined') return;
-    
-    this.bgMusic = new Audio('sounds/army_theme_DOES_NOT_EXIST.mp3');
-    this.bgMusicFallback = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_d1718ab41b.mp3');
-    this.bgMusic.loop = true;
-    this.bgMusicFallback.loop = true;
-    this.bgMusic.volume = 0.3;
-    this.bgMusicFallback.volume = 0.3;
-
-    const soundUrls = {
-      select: ['sounds/select_wrong.wav', 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_12b0c7443c.mp3'],
-      move: ['sounds/move_wrong.wav', 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_c610232de1.mp3'],
-      attack: ['sounds/attack_wrong.wav', 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_6c7f2cd8ac.mp3'],
-      ability: ['sounds/ability_wrong.wav', 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_2b1ffc3bd2.mp3'],
-      death: ['sounds/death_wrong.wav', 'https://cdn.pixabay.com/download/audio/2021/08/09/audio_d9d5420415.mp3'],
-      victory: ['sounds/victory_wrong.wav', 'https://cdn.pixabay.com/download/audio/2022/03/20/audio_1882c9e5ab.mp3']
-    };
-
-    Object.entries(soundUrls).forEach(([name, [main, fallback]]) => {
-      this.sounds[name] = {
-        main: new Audio(main),
-        fallback: new Audio(fallback)
-      };
-      this.sounds[name].main.volume = 0.5;
-      this.sounds[name].fallback.volume = 0.5;
-    });
-  }
-
-  playMusic() {
-    this.bgMusic?.play().catch(() => {
-      console.log('Using fallback music');
-      this.bgMusicFallback?.play().catch(() => {});
-    });
-  }
-
-  stopMusic() {
-    this.bgMusic?.pause();
-    this.bgMusicFallback?.pause();
-    if (this.bgMusic) this.bgMusic.currentTime = 0;
-    if (this.bgMusicFallback) this.bgMusicFallback.currentTime = 0;
-  }
-
-  playSound(name: string) {
-    const sound = this.sounds[name];
-    if (!sound) return;
-    sound.main.currentTime = 0;
-    sound.main.play().catch(() => {
-      sound.fallback.currentTime = 0;
-      sound.fallback.play().catch(() => {});
-    });
-  }
-}
+// Note: Using our custom sound manager from @/lib/sound-manager
+// which handles unit placement sounds with overlap prevention
 
 export function BattleGameRTS() {
   const { user } = useAuth();
@@ -163,7 +108,6 @@ export function BattleGameRTS() {
   
   const animationFrameRef = useRef<number | null>(null);
   const battlefieldRef = useRef<HTMLDivElement>(null);
-  const audioManagerRef = useRef<AudioManager | null>(null);
 
   useEffect(() => {
     const enteredViaGateway = sessionStorage.getItem('battleEnteredViaGateway');
@@ -171,8 +115,8 @@ export function BattleGameRTS() {
       router.push('/dashboard');
       return;
     }
-    audioManagerRef.current = new AudioManager();
-    return () => audioManagerRef.current?.stopMusic();
+    // Cleanup sound manager on unmount
+    return () => soundManager.stopAllSounds();
   }, [router]);
 
   // ==================== HELPER FUNCTIONS ====================
@@ -262,7 +206,9 @@ export function BattleGameRTS() {
       damageFlash: 0
     };
 
-    audioManagerRef.current?.playSound('select');
+    // Play unit placement sound based on unit type
+    soundManager.playPlacementSound(selectedUnitType);
+    
     setGameState(prev => ({
       ...prev,
       playerUnits: [...prev.playerUnits, newUnit],
@@ -292,7 +238,6 @@ export function BattleGameRTS() {
         isSelected: unit.x >= minX && unit.x <= maxX && unit.y >= minY && unit.y <= maxY
       }))
     }));
-    audioManagerRef.current?.playSound('select');
   };
 
   const moveSelectedUnits = (targetX: number, targetY: number) => {
@@ -309,7 +254,6 @@ export function BattleGameRTS() {
           targetY: targetY + (unit.y - centerY)
         };
       });
-      audioManagerRef.current?.playSound('move');
       return { ...prev, playerUnits: updatedUnits };
     });
   };
@@ -329,7 +273,6 @@ export function BattleGameRTS() {
         }
         return unit;
       });
-      audioManagerRef.current?.playSound('move');
       return { ...prev, playerUnits: updatedUnits, formation };
     });
   };
@@ -340,7 +283,6 @@ export function BattleGameRTS() {
         if (!unit.isSelected || unit.abilityType !== abilityType || unit.abilityCooldown > 0) return unit;
         const effect = ABILITY_EFFECTS[abilityType];
         const unitConfig = UNIT_TYPES[unit.type];
-        audioManagerRef.current?.playSound('ability');
         
         let newSpeed = unit.speed, newAttack = unit.attack, newDefense = unit.defense;
         if (abilityType === 'charge' && 'speedBoost' in effect) {
@@ -407,12 +349,14 @@ export function BattleGameRTS() {
   const startBattle = () => {
     if (gameState.playerUnits.length === 0) return;
     const enemyUnits = generateEnemyUnits();
-    audioManagerRef.current?.playMusic();
+    // Start background battle music
+    soundManager.startBattleMusic();
     setGameState(prev => ({ ...prev, phase: 'battle', enemyUnits }));
   };
 
   const resetGame = () => {
-    audioManagerRef.current?.stopMusic();
+    // Stop all sounds when resetting
+    soundManager.stopAllSounds();
     setGameState({
       phase: 'start',
       playerUnits: [],
@@ -475,11 +419,9 @@ export function BattleGameRTS() {
                 const damage = Math.max(0, u.attack - nearestEnemy.defense);
                 nearestEnemy.health -= damage;
                 nearestEnemy.damageFlash = 200;
-                audioManagerRef.current?.playSound('attack');
                 newParticles.push(...createParticles(nearestEnemy.x, nearestEnemy.y, '#FF0000', 8));
                 newScreenShake = 5;
                 if (nearestEnemy.health <= 0) {
-                  audioManagerRef.current?.playSound('death');
                   newParticles.push(...createParticles(nearestEnemy.x, nearestEnemy.y, '#FFD700', 15));
                 }
                 u.lastAttackTime = currentTime;
@@ -504,8 +446,8 @@ export function BattleGameRTS() {
       updatedEnemyUnits = updatedEnemyUnits.filter(u => u.health > 0);
 
       if (updatedPlayerUnits.length === 0 || updatedEnemyUnits.length === 0) {
-        audioManagerRef.current?.stopMusic();
-        audioManagerRef.current?.playSound('victory');
+        // Stop battle music when battle ends
+        soundManager.stopBattleMusic();
         return {
           ...prev,
           phase: updatedEnemyUnits.length === 0 ? 'victory' : 'defeat',
@@ -562,7 +504,6 @@ export function BattleGameRTS() {
         ...prev,
         playerUnits: prev.playerUnits.map(u => ({ ...u, isSelected: u.id === clickedUnit.id }))
       }));
-      audioManagerRef.current?.playSound('select');
     } else if (!clickedUnit) {
       setIsDragging(true);
       setSelectionBox({ x1: x, y1: y, x2: x, y2: y });
