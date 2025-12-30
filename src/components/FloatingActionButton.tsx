@@ -19,25 +19,35 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
 
   // Track mouse position to detect if it's over dashboard content area
   useEffect(() => {
+    // Safety check - only run mouse tracking logic on dashboard
     if (pathname !== '/dashboard') {
-      setMouseInDashboardArea(false); // Reset when not on dashboard
+      setMouseInDashboardArea(false);
       return;
     }
 
-    let rafId: number;
+    // Throttle updates to prevent infinite re-renders
+    let rafId: number | null = null;
     let lastInArea = false;
+    let lastUpdateTime = 0;
+    const UPDATE_THROTTLE = 16; // ~60fps
 
     const handleMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - lastUpdateTime < UPDATE_THROTTLE) return;
+
       // Cancel previous animation frame
       if (rafId) cancelAnimationFrame(rafId);
 
       rafId = requestAnimationFrame(() => {
+        // Double-check we're still on dashboard (safety)
+        if (pathname !== '/dashboard') return;
+
         // Check if mouse is within dashboard content area bounds
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
         // Approximate dashboard content area (centered, with margins)
-        const contentLeft = Math.max(16, viewportWidth * 0.05); // 5% margin or 16px min
+        const contentLeft = Math.max(16, viewportWidth * 0.05);
         const contentRight = Math.min(viewportWidth - 16, viewportWidth * 0.95);
         const contentTop = 120; // Below navbar/header area
         const contentBottom = viewportHeight - 32; // Above bottom margin
@@ -47,18 +57,24 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
                        e.clientY >= contentTop &&
                        e.clientY <= contentBottom;
 
-        // Only update state if it actually changed to prevent unnecessary re-renders
+        // Only update state if it actually changed
         if (inArea !== lastInArea) {
           lastInArea = inArea;
+          lastUpdateTime = now;
           setMouseInDashboardArea(inArea);
         }
       });
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
+    // Add event listener with passive option for better performance
+    document.addEventListener('mousemove', handleMouseMove, { passive: true });
+
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      if (rafId) cancelAnimationFrame(rafId);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
     };
   }, [pathname]);
 
