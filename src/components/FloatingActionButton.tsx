@@ -12,11 +12,11 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
   const { user } = useAuth();
   const pathname = usePathname();
 
-  // Only show for authenticated users
-  if (!user) return null;
+  // Only show on dashboard page for authenticated users
+  if (!user || pathname !== '/dashboard') return null;
 
-  // Only show glow effect on dashboard - use CSS hover instead of complex mouse tracking
-  const showGlow = pathname === '/dashboard';
+  // Show glow effect on dashboard
+  const showGlow = true;
 
   return (
     <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-40">
