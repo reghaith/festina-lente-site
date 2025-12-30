@@ -96,7 +96,7 @@ export function DailyLoginDrawer({ isOpen, onClose }: DailyLoginDrawerProps) {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-divider">
-            <h2 className="text-xl font-bold text-primary">Daily Rewards</h2>
+            <h2 className="text-xl font-bold text-primary">Daily Earn</h2>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-lg bg-surface-primary hover:bg-surface-secondary border border-divider flex items-center justify-center transition-colors duration-200"
@@ -152,10 +152,10 @@ export function DailyLoginDrawer({ isOpen, onClose }: DailyLoginDrawerProps) {
                     ) : dailyStatus ? (
                       <>
                         <h3 className="text-lg font-bold text-primary mb-2">
-                          {dailyStatus.claimedToday ? 'Already Claimed!' : 'Ready to Claim'}
+                          {dailyStatus.claimedToday ? 'Already Earned!' : 'Ready to Earn'}
                         </h3>
                         <p className="text-secondary text-sm mb-4">
-                          Login streak: {dailyStatus.streak} days
+                          Earn streak: {dailyStatus.streak} days
                         </p>
                         <div className="text-2xl font-bold text-success mb-4">
                           +{dailyStatus.todaysReward} EXP
@@ -176,7 +176,7 @@ export function DailyLoginDrawer({ isOpen, onClose }: DailyLoginDrawerProps) {
                             ? 'Claiming...'
                             : dailyStatus.claimedToday
                             ? '✓ Claimed Today'
-                            : 'Claim Daily EXP'
+                            : 'Earn'
                           }
                         </button>
                       </>
@@ -188,7 +188,7 @@ export function DailyLoginDrawer({ isOpen, onClose }: DailyLoginDrawerProps) {
 
                 {/* Streak Info */}
                 <div className="bg-surface-primary rounded-xl border border-divider p-4">
-                  <h4 className="text-sm font-semibold text-primary mb-2">Login Streak</h4>
+                  <h4 className="text-sm font-semibold text-primary mb-2">Earn Streak</h4>
                   <div className="flex items-center space-x-2">
                     <div className="flex space-x-1">
                       {[...Array(7)].map((_, i) => (

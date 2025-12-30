@@ -28,11 +28,17 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
           group overflow-hidden
           ${isOpen ? 'rotate-180' : ''}
         `}
-        title="Daily Login & Rewards"
+        title="Daily Earn & Rewards"
       >
-        {/* Orbiting ring animation */}
-        <div className="absolute inset-0 rounded-full border-2 border-accent/30 animate-spin"
-             style={{ animationDuration: '3s' }}>
+        {/* Orbiting white semi-circle */}
+        <div className="absolute inset-0 rounded-full overflow-hidden">
+          <div
+            className="absolute inset-0 rounded-full border-2 border-white animate-spin"
+            style={{
+              animationDuration: '2s',
+              clipPath: 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 50%)'
+            }}
+          />
         </div>
 
         {/* Inner arrow icon */}
@@ -61,7 +67,7 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
       {/* Tooltip */}
       <div className="absolute left-full ml-3 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
         <div className="bg-surface-primary text-primary px-3 py-2 rounded-lg border border-divider shadow-lg text-sm whitespace-nowrap">
-          Daily Login
+          Daily Earn
           <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-surface-primary"></div>
         </div>
       </div>

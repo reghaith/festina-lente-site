@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
     if (todaysClaim) {
       return NextResponse.json({
         success: false,
-        error: 'Already claimed today',
-        nextClaimTime: new Date(new Date().setHours(24, 0, 0, 0)).toISOString() // Next midnight
+        error: 'Already earned today',
+        nextEarnTime: new Date(new Date().setHours(24, 0, 0, 0)).toISOString() // Next midnight
       }, { status: 429 });
     }
 
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       success: true,
       expGranted,
       newStreak,
-      message: `Claimed ${expGranted} EXP for daily login!`
+      message: `Earned ${expGranted} EXP for daily activity!`
     });
 
   } catch (error: any) {
