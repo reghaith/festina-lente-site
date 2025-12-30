@@ -25,7 +25,8 @@ export const TABLES = {
   SURVEYS: 'surveys',
   OFFERS: 'offers',
   TRANSACTIONS: 'transactions',
-  USER_EXP: 'user_exp'
+  USER_EXP: 'user_exp',
+  DAILY_CLAIMS: 'daily_claims'
 }
 
 // User authentication functions
@@ -130,6 +131,38 @@ export const db = {
       expData = await this.createUserExp(userId);
     }
     return expData;
+  },
+
+  // Daily claims functions
+  async getTodaysClaim(userId: string) {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const result = await this.query(`
+      SELECT * FROM daily_claims
+      WHERE user_id = $1 AND claim_date = $2
+    `, [userId, today]);
+    return result.rows[0];
+  },
+
+  async getClaimStreak(userId: string) {
+    const result = await this.query(`
+      SELECT COUNT(*) as streak
+      FROM daily_claims
+      WHERE user_id = $1
+      AND claim_date >= CURRENT_DATE - INTERVAL '7 days'
+      ORDER BY claim_date DESC
+    `, [userId]);
+    return parseInt(result.rows[0].streak) || 0;
+  },
+
+  async recordDailyClaim(userId: string, expGranted: number) {
+    const today = new Date().toISOString().split('T')[0];
+    const result = await this.query(`
+      INSERT INTO daily_claims (user_id, claim_date, exp_granted)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (user_id, claim_date) DO NOTHING
+      RETURNING *
+    `, [userId, today, expGranted]);
+    return result.rows[0];
   }
 }
 

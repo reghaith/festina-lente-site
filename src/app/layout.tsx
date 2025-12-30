@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { AuthProvider } from '@/lib/auth';
 import { DarkModeProvider } from '@/lib/dark-mode';
+import { LayoutWrapper } from '@/components/LayoutWrapper';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,10 +39,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <DarkModeProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </DarkModeProvider>
+           <AuthProvider>
+             <LayoutWrapper>
+               {children}
+             </LayoutWrapper>
+           </AuthProvider>
+         </DarkModeProvider>
       </body>
     </html>
   );
