@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { soundManager } from '@/lib/sound-manager';
+import { UnitSpriteRenderer } from '@/components/UnitSprites';
 
 // ==================== TYPES ====================
 type Formation = 'line' | 'box' | 'wedge' | 'free';
@@ -611,7 +612,9 @@ export function BattleGameRTS() {
             <div className={`absolute right-4 top-4 ${glassPanel} px-3 py-1 rounded text-red-400 font-bold text-sm`}>ENEMY SIDE</div>
             {gameState.playerUnits.map((unit) => (
               <div key={unit.id} className="absolute cursor-pointer hover:scale-110 transition-transform" style={{ left: `${unit.x - UNIT_SIZE / 2}px`, top: `${unit.y - UNIT_SIZE / 2}px`, width: `${UNIT_SIZE}px`, height: `${UNIT_SIZE}px` }} onClick={(e) => { e.stopPropagation(); removeUnit(unit.id); }}>
-                <div className="w-full h-full rounded-lg flex items-center justify-center text-2xl" style={{ backgroundColor: '#3b82f6', border: '2px solid #60a5fa' }}>🔵</div>
+                <div className="w-full h-full flex items-center justify-center" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>
+                  <UnitSpriteRenderer unitType={unit.type} team="blue" size={UNIT_SIZE} />
+                </div>
               </div>
             ))}
           </div>
@@ -666,7 +669,9 @@ export function BattleGameRTS() {
             <div key={unit.id} className={`absolute ${unit.isAttacking ? 'animate-pulse' : ''}`} style={{ left: `${unit.x - UNIT_SIZE / 2}px`, top: `${unit.y - UNIT_SIZE / 2}px`, width: `${UNIT_SIZE}px`, height: `${UNIT_SIZE}px` }}>
               {unit.isSelected && <div className="absolute inset-0 rounded-full border-4 border-blue-400" style={{ transform: 'scale(1.3)', animation: 'pulse 1s ease-in-out infinite' }}></div>}
               {unit.abilityActive && <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 20px 10px rgba(59, 130, 246, 0.6)', animation: 'pulse 0.5s ease-in-out infinite' }}></div>}
-              <div className="w-full h-full rounded-lg flex items-center justify-center text-2xl" style={{ backgroundColor: isBlue ? '#3b82f6' : '#ef4444', border: isBlue ? '2px solid #60a5fa' : '2px solid #f87171', filter: unit.damageFlash > 0 ? 'brightness(2) saturate(0)' : 'none' }}>{isBlue ? '🔵' : '🔴'}</div>
+              <div className="w-full h-full flex items-center justify-center" style={{ filter: unit.damageFlash > 0 ? 'brightness(2) saturate(0) drop-shadow(0 0 8px red)' : 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>
+                <UnitSpriteRenderer unitType={unit.type} team={unit.team} size={UNIT_SIZE} />
+              </div>
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-12">
                 <div className="h-1.5 bg-gray-900 rounded-full overflow-hidden border border-gray-700">
                   <div className="h-full transition-all duration-300" style={{ width: `${hpPercent}%`, backgroundColor: hpPercent > 60 ? '#22c55e' : hpPercent > 30 ? '#eab308' : '#ef4444' }} />
