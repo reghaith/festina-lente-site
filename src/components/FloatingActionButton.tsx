@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
 import { usePathname } from 'next/navigation';
 
@@ -12,74 +11,12 @@ interface FloatingActionButtonProps {
 export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonProps) {
   const { user } = useAuth();
   const pathname = usePathname();
-  const [mouseInDashboardArea, setMouseInDashboardArea] = useState(false);
 
   // Only show for authenticated users
   if (!user) return null;
 
-  // Track mouse position to detect if it's over dashboard content area
-  useEffect(() => {
-    // Safety check - only run mouse tracking logic on dashboard
-    if (pathname !== '/dashboard') {
-      setMouseInDashboardArea(false);
-      return;
-    }
-
-    // Throttle updates to prevent infinite re-renders
-    let rafId: number | null = null;
-    let lastInArea = false;
-    let lastUpdateTime = 0;
-    const UPDATE_THROTTLE = 16; // ~60fps
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const now = Date.now();
-      if (now - lastUpdateTime < UPDATE_THROTTLE) return;
-
-      // Cancel previous animation frame
-      if (rafId) cancelAnimationFrame(rafId);
-
-      rafId = requestAnimationFrame(() => {
-        // Double-check we're still on dashboard (safety)
-        if (pathname !== '/dashboard') return;
-
-        // Check if mouse is within dashboard content area bounds
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
-        // Approximate dashboard content area (centered, with margins)
-        const contentLeft = Math.max(16, viewportWidth * 0.05);
-        const contentRight = Math.min(viewportWidth - 16, viewportWidth * 0.95);
-        const contentTop = 120; // Below navbar/header area
-        const contentBottom = viewportHeight - 32; // Above bottom margin
-
-        const inArea = e.clientX >= contentLeft &&
-                       e.clientX <= contentRight &&
-                       e.clientY >= contentTop &&
-                       e.clientY <= contentBottom;
-
-        // Only update state if it actually changed
-        if (inArea !== lastInArea) {
-          lastInArea = inArea;
-          lastUpdateTime = now;
-          setMouseInDashboardArea(inArea);
-        }
-      });
-    };
-
-    // Add event listener with passive option for better performance
-    document.addEventListener('mousemove', handleMouseMove, { passive: true });
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-    };
-  }, [pathname]);
-
-  // Only show glow effect on dashboard when mouse is in content area
-  const showGlow = pathname === '/dashboard' && mouseInDashboardArea;
+  // Only show glow effect on dashboard - use CSS hover instead of complex mouse tracking
+  const showGlow = pathname === '/dashboard';
 
   return (
     <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-40">
@@ -94,6 +31,7 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
           transition-all duration-300 ease-out
           group overflow-hidden
           ${isOpen ? 'rotate-180' : ''}
+          ${showGlow ? 'dashboard-glow' : ''}
         `}
         title="Daily Earn & Rewards"
       >
@@ -127,10 +65,8 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
           </svg>
         </div>
 
-        {/* Subtle glow effect on hover - only on dashboard */}
-        {showGlow && (
-          <div className="absolute inset-0 rounded-full bg-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        )}
+        {/* Dashboard glow effect using CSS */}
+        <div className="absolute inset-0 rounded-full bg-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </button>
 
       {/* Tooltip */}
