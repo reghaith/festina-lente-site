@@ -81,15 +81,34 @@ export function BattleGame() {
 
   const generateEnemyUnits = () => {
     const enemyUnits: Unit[] = [];
-    const positions = [0, 1, 2, 3, 4];
+    const enemyTypes = ['warrior', 'archer', 'rider', 'bear'] as const;
+    const positions = Array.from({ length: 50 }, (_, i) => i).filter(i => i >= 5); // Right side only (columns 5-9)
 
     // Generate 3-5 random enemy units
     const numUnits = Math.floor(Math.random() * 3) + 3;
 
     for (let i = 0; i < numUnits; i++) {
-      const types = Object.keys(UNIT_TYPES) as Array<keyof typeof UNIT_TYPES>;
-      const randomType = types[Math.floor(Math.random() * types.length)];
-      const unitType = UNIT_TYPES[randomType];
+      const randomTypeIndex = Math.floor(Math.random() * enemyTypes.length);
+      const randomType = enemyTypes[randomTypeIndex];
+
+      // Create enemy unit stats (slightly different from player units)
+      let unitStats;
+      switch (randomType) {
+        case 'warrior':
+          unitStats = { health: 110, attack: 18, name: 'Warrior' };
+          break;
+        case 'archer':
+          unitStats = { health: 75, attack: 28, name: 'Archer' };
+          break;
+        case 'rider':
+          unitStats = { health: 90, attack: 22, name: 'Rider' };
+          break;
+        case 'bear':
+          unitStats = { health: 140, attack: 16, name: 'Bear' };
+          break;
+        default:
+          unitStats = { health: 100, attack: 20, name: 'Unknown' };
+      }
 
       const availablePositions = positions.filter(pos =>
         !enemyUnits.some(unit => unit.position === pos)
@@ -98,10 +117,10 @@ export function BattleGame() {
 
       enemyUnits.push({
         id: `enemy_${randomType}_${i}`,
-        type: randomType,
-        health: unitType.health,
-        maxHealth: unitType.health,
-        attack: unitType.attack,
+        type: randomType as keyof typeof UNIT_TYPES,
+        health: unitStats.health,
+        maxHealth: unitStats.health,
+        attack: unitStats.attack,
         position
       });
     }
@@ -204,14 +223,30 @@ export function BattleGame() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-primary mb-4">Please log in to play</h1>
+      <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black flex items-center justify-center">
+        <style jsx>{`
+          .pixel-font {
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.8);
+            image-rendering: pixelated;
+          }
+        `}</style>
+
+        <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl border-4 border-red-400 p-8 text-center pixel-border shadow-2xl">
+          <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-400">
+            <span className="text-4xl">🚫</span>
+          </div>
+
+          <h1 className="text-3xl font-bold text-red-400 pixel-font mb-4">LOGIN REQUIRED</h1>
+          <p className="text-gray-300 pixel-font mb-6">
+            You must be logged in to battle!
+          </p>
+
           <button
             onClick={() => router.push('/login')}
-            className="bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-lg font-semibold"
+            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-8 py-4 rounded-lg border-2 border-blue-400 font-bold pixel-font transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            Login
+            🔐 LOGIN TO BATTLE 🔐
           </button>
         </div>
       </div>
@@ -220,160 +255,297 @@ export function BattleGame() {
 
   if (gameState.phase === 'setup') {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Top Bar */}
-        <div className="bg-surface-primary border-b border-divider px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-accent rounded-full"></div>
-                <span className="font-semibold text-primary">Player Army</span>
-              </div>
-              <span className="text-secondary">vs</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-error rounded-full"></div>
-                <span className="font-semibold text-primary">Enemy Army</span>
-              </div>
-            </div>
-            <button
-              onClick={exitToSite}
-              className="bg-surface-secondary hover:bg-surface-primary text-secondary px-4 py-2 rounded-lg border border-divider transition-colors duration-200"
-            >
-              Exit to Site
-            </button>
-          </div>
+      <div className="min-h-screen bg-gradient-to-b from-sky-400 to-green-300 overflow-hidden">
+        {/* Retro pixel styling */}
+        <style jsx>{`
+          .pixel-font {
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.8);
+            image-rendering: pixelated;
+          }
+          .grass-texture {
+            background-image:
+              radial-gradient(circle at 20% 80%, rgba(34, 139, 34, 0.3) 1px, transparent 1px),
+              radial-gradient(circle at 80% 20%, rgba(34, 139, 34, 0.2) 1px, transparent 1px),
+              radial-gradient(circle at 40% 40%, rgba(34, 139, 34, 0.1) 2px, transparent 2px);
+            background-size: 40px 40px, 60px 60px, 80px 80px;
+          }
+          .pixel-border {
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3);
+          }
+        `}</style>
+
+        {/* Top UI Bar */}
+        <div className="bg-gradient-to-b from-gray-800 to-gray-900 border-b-4 border-yellow-400 px-6 py-4 text-center">
+          <h1 className="text-4xl font-bold text-white pixel-font mb-2">SETUP PHASE</h1>
+          <p className="text-yellow-200 pixel-font text-sm">
+            Press SPACE to start battle, or drag more characters
+          </p>
         </div>
 
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-primary mb-2">Battle Setup Phase</h1>
-            <p className="text-secondary">Build your army and prepare for battle!</p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Unit Selection */}
-            <div className="bg-surface-primary rounded-xl border border-divider p-6">
-              <h2 className="text-xl font-bold text-primary mb-4">Select Unit</h2>
-              <div className="space-y-3">
-                {Object.entries(UNIT_TYPES).map(([type, stats]) => (
-                  <button
-                    key={type}
-                    onClick={() => setSelectedUnitType(type as keyof typeof UNIT_TYPES)}
-                    className={`w-full p-3 rounded-lg border transition-colors duration-200 ${
-                      selectedUnitType === type
-                        ? 'border-accent bg-accent/10'
-                        : 'border-divider hover:border-accent'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-primary">{stats.name}</span>
-                      <div className="text-sm text-secondary">
+        <div className="flex">
+          {/* Left Team Panel - HUMANS */}
+          <div className="w-64 bg-gradient-to-b from-blue-600 to-blue-800 p-4 border-r-4 border-blue-300">
+            <h2 className="text-2xl font-bold text-white pixel-font mb-4 text-center">HUMANS</h2>
+            <div className="space-y-2">
+              {Object.entries(UNIT_TYPES).map(([type, stats]) => (
+                <button
+                  key={type}
+                  onClick={() => setSelectedUnitType(type as keyof typeof UNIT_TYPES)}
+                  className={`w-full p-3 rounded border-2 transition-all duration-200 pixel-border ${
+                    selectedUnitType === type
+                      ? 'border-yellow-400 bg-blue-400 shadow-lg scale-105'
+                      : 'border-blue-300 bg-blue-500 hover:bg-blue-400'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-400 rounded border-2 border-gray-600 flex items-center justify-center">
+                      <span className="text-2xl">
+                        {type === 'warrior' ? '⚔️' : type === 'archer' ? '🏹' : '🔮'}
+                      </span>
+                    </div>
+                    <div className="text-left">
+                      <div className="text-white font-bold pixel-font text-sm">{stats.name}</div>
+                      <div className="text-blue-200 text-xs pixel-font">
                         ❤️ {stats.health} ⚔️ {stats.attack}
                       </div>
                     </div>
-                  </button>
-                ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Battlefield */}
+          <div className="flex-1 relative">
+            {/* Grass battlefield */}
+            <div className="h-full min-h-[600px] grass-texture relative">
+              {/* Center divider line */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-yellow-400 to-transparent opacity-60"></div>
+
+              {/* Battlefield for unit placement */}
+              <div className="absolute inset-0 p-8">
+                <div className="h-full flex items-center justify-center">
+                  {/* Player deployment zone */}
+                  <div className="w-1/2 h-full border-r-2 border-yellow-400/50 relative">
+                    <div className="absolute top-4 left-4 text-blue-300 pixel-font text-sm">
+                      HUMAN DEPLOYMENT ZONE
+                    </div>
+
+                    {/* Simple placement areas */}
+                    <div className="h-full flex flex-col justify-center space-y-4 px-8">
+                      {Array.from({ length: 5 }, (_, i) => {
+                        const unit = gameState.playerUnits.find(u => u.position === i);
+
+                        return (
+                          <div
+                            key={`player-zone-${i}`}
+                            onClick={() => placingUnit ? addUnit(i) : null}
+                            className={`h-16 border-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center justify-center ${
+                              placingUnit
+                                ? 'border-blue-400 bg-blue-200/30 hover:bg-blue-300/50'
+                                : unit
+                                ? 'border-blue-500 bg-blue-300/20'
+                                : 'border-blue-300/50 hover:border-blue-400'
+                            }`}
+                          >
+                            {unit && (
+                              <div className="flex items-center space-x-4 relative w-full px-4">
+                                <div className="text-3xl">
+                                  {unit.type === 'warrior' ? '⚔️' : unit.type === 'archer' ? '🏹' : '🔮'}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="text-white pixel-font text-sm font-bold">
+                                    {UNIT_TYPES[unit.type].name}
+                                  </div>
+                                  <div className="w-full h-2 bg-gray-700 rounded-full mt-1">
+                                    <div
+                                      className="h-full bg-red-500 rounded-full transition-all duration-300"
+                                      style={{ width: `${(unit.health / unit.maxHealth) * 100}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeUnit(unit.id);
+                                  }}
+                                  className="w-6 h-6 bg-red-500 rounded-full text-white text-xs hover:bg-red-600 flex items-center justify-center pixel-font"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Enemy preview zone */}
+                  <div className="w-1/2 h-full relative">
+                    <div className="absolute top-4 right-4 text-red-300 pixel-font text-sm text-right">
+                      ORC THREAT ZONE
+                    </div>
+
+                    <div className="h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-24 h-24 bg-gradient-to-br from-red-600 to-red-800 rounded-full border-4 border-red-400 flex items-center justify-center mb-4 pixel-border">
+                          <span className="text-4xl">👹</span>
+                        </div>
+                        <div className="text-red-300 pixel-font text-lg">
+                          UNKNOWN ENEMY FORCES
+                        </div>
+                        <div className="text-red-400 pixel-font text-sm mt-2">
+                          3-5 UNITS APPROACHING
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Units display */}
+              <div className="absolute inset-0 p-8 pointer-events-none">
+                {gameState.playerUnits.map((unit, index) => {
+                  // Position units organically on the left side during setup
+                  const baseX = 15 + (index * 12); // Spread across left side
+                  const baseY = 30 + (Math.sin(Date.now() / 2000 + index) * 8); // Gentle bobbing
+
+                  return (
+                    <div
+                      key={unit.id}
+                      className="absolute w-12 h-12 transform -translate-x-1/2 -translate-y-1/2 animate-pulse"
+                      style={{
+                        left: `${baseX}%`,
+                        top: `${baseY}%`,
+                        animationDuration: '2s',
+                        animationDelay: `${index * 0.2}s`
+                      }}
+                    >
+                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 rounded-full border-2 border-blue-300 flex items-center justify-center shadow-lg pixel-border">
+                        <span className="text-2xl animate-bounce">
+                          {unit.type === 'warrior' ? '⚔️' : unit.type === 'archer' ? '🏹' : '🔮'}
+                        </span>
+                      </div>
+                      {/* HP bar above head */}
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <div className="w-6 h-1 bg-gray-700 rounded-full">
+                          <div
+                            className="h-full bg-red-500 rounded-full transition-all duration-300"
+                            style={{ width: `${(unit.health / unit.maxHealth) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Battlefield Preview */}
-            <div className="lg:col-span-2">
-              <div className="bg-surface-primary rounded-xl border border-divider p-6 mb-6">
-                <h2 className="text-xl font-bold text-primary mb-4">Battlefield</h2>
-                <div className="grid grid-cols-5 gap-2 mb-4">
-                  {/* Player side (bottom) */}
-                  {Array.from({ length: 5 }, (_, i) => {
-                    const unit = gameState.playerUnits.find(u => u.position === i);
-                    return (
-                      <div
-                        key={`player-${i}`}
-                        onClick={() => placingUnit ? addUnit(i) : null}
-                        className={`aspect-square border-2 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 ${
-                          placingUnit
-                            ? 'border-accent bg-accent/10 hover:bg-accent/20'
-                            : unit
-                            ? 'border-accent bg-accent/20'
-                            : 'border-divider hover:border-accent'
-                        }`}
-                      >
-                        {unit && (
-                          <div className="text-center">
-                            <div className="text-xs font-bold text-primary">
-                              {UNIT_TYPES[unit.type].name.charAt(0)}
-                            </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeUnit(unit.id);
-                              }}
-                              className="text-xs text-error hover:text-error mt-1"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="text-center mb-4">
-                  <div className="w-full h-2 bg-divider rounded-full mb-2"></div>
-                  <span className="text-sm text-secondary">Battle Line</span>
-                  <div className="w-full h-2 bg-divider rounded-full mt-2"></div>
-                </div>
-
-                {/* Enemy side (top) - preview */}
-                <div className="grid grid-cols-5 gap-2 opacity-50">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <div
-                      key={`enemy-${i}`}
-                      className="aspect-square border-2 border-error/30 rounded-lg flex items-center justify-center"
-                    >
-                      <span className="text-xs text-error">?</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+            {/* Bottom controls */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 to-transparent p-6">
+              <div className="flex items-center justify-between max-w-4xl mx-auto">
+                <div className="flex items-center space-x-6">
                   <button
                     onClick={() => setPlacingUnit(!placingUnit)}
-                    className={`px-6 py-3 rounded-lg font-semibold transition-colors duration-200 ${
+                    className={`px-6 py-3 rounded border-2 font-bold pixel-font transition-all duration-200 ${
                       placingUnit
-                        ? 'bg-accent text-white'
-                        : 'bg-surface-secondary text-primary hover:bg-surface-primary border border-divider'
+                        ? 'bg-yellow-400 text-black border-yellow-300 shadow-lg'
+                        : 'bg-gray-700 text-white border-gray-500 hover:bg-gray-600'
                     }`}
                   >
-                    {placingUnit ? 'Cancel Placement' : 'Place Unit'}
+                    {placingUnit ? 'CANCEL PLACEMENT' : 'PLACE UNIT'}
                   </button>
-                  <span className="text-secondary">
-                    Units: {gameState.playerUnits.length}/5
-                  </span>
+                  <div className="text-white pixel-font">
+                    UNITS: {gameState.playerUnits.length}/5
+                  </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={resetGame}
-                    className="bg-surface-secondary hover:bg-surface-primary text-secondary px-6 py-3 rounded-lg border border-divider transition-colors duration-200"
+                    className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded border-2 border-red-400 font-bold pixel-font transition-colors duration-200"
                   >
-                    Reset
+                    RESET
                   </button>
                   <button
                     onClick={startBattle}
                     disabled={gameState.playerUnits.length === 0}
-                    className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                    className={`px-8 py-3 rounded border-2 font-bold pixel-font transition-all duration-200 ${
                       gameState.playerUnits.length === 0
-                        ? 'bg-disabled text-muted cursor-not-allowed'
-                        : 'bg-success hover:bg-success text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                        ? 'bg-gray-600 text-gray-400 border-gray-500 cursor-not-allowed'
+                        : 'bg-green-600 hover:bg-green-500 text-white border-green-400 shadow-lg hover:shadow-xl'
                     }`}
                   >
-                    Start Battle!
+                    START BATTLE!
                   </button>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Right Team Panel - ORCS */}
+          <div className="w-64 bg-gradient-to-b from-red-600 to-red-800 p-4 border-l-4 border-red-300">
+            <h2 className="text-2xl font-bold text-white pixel-font mb-4 text-center">ORCS</h2>
+            <div className="space-y-2">
+              {/* Enemy unit previews */}
+              <div className="p-3 rounded border-2 border-red-300 bg-red-500/50">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded border-2 border-red-500 flex items-center justify-center">
+                    <span className="text-2xl">⚔️</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-bold pixel-font text-sm">WARRIOR</div>
+                    <div className="text-red-200 text-xs pixel-font">❤️ ?? ⚔️ ??</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded border-2 border-red-300 bg-red-500/50">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded border-2 border-red-500 flex items-center justify-center">
+                    <span className="text-2xl">🏹</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-bold pixel-font text-sm">ARCHER</div>
+                    <div className="text-red-200 text-xs pixel-font">❤️ ?? ⚔️ ??</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded border-2 border-red-300 bg-red-500/50">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded border-2 border-red-500 flex items-center justify-center">
+                    <span className="text-2xl">🐎</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-bold pixel-font text-sm">RIDER</div>
+                    <div className="text-red-200 text-xs pixel-font">❤️ ?? ⚔️ ??</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded border-2 border-red-300 bg-red-500/50">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded border-2 border-red-500 flex items-center justify-center">
+                    <span className="text-2xl">🐻</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-bold pixel-font text-sm">BEAR</div>
+                    <div className="text-red-200 text-xs pixel-font">❤️ ?? ⚔️ ??</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Exit button */}
+            <button
+              onClick={exitToSite}
+              className="absolute top-4 right-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded border border-gray-500 font-bold pixel-font transition-colors duration-200"
+            >
+              EXIT
+            </button>
           </div>
         </div>
       </div>
@@ -382,121 +554,157 @@ export function BattleGame() {
 
   if (gameState.phase === 'battle') {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Top Bar */}
-        <div className="bg-surface-primary border-b border-divider px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-accent rounded-full"></div>
-                <span className="font-semibold text-primary">Player Army ({gameState.playerUnits.length})</span>
-              </div>
-              <span className="text-secondary">vs</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-error rounded-full"></div>
-                <span className="font-semibold text-primary">Enemy Army ({gameState.enemyUnits.length})</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-secondary">Turn: {gameState.turn}</span>
-              <button
-                onClick={resetGame}
-                className="bg-surface-secondary hover:bg-surface-primary text-secondary px-4 py-2 rounded-lg border border-divider transition-colors duration-200"
-              >
-                Exit Battle
-              </button>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-b from-sky-400 to-green-300 overflow-hidden">
+        {/* Retro pixel styling */}
+        <style jsx>{`
+          .pixel-font {
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.8);
+            image-rendering: pixelated;
+          }
+          .grass-texture {
+            background-image:
+              radial-gradient(circle at 20% 80%, rgba(34, 139, 34, 0.3) 1px, transparent 1px),
+              radial-gradient(circle at 80% 20%, rgba(34, 139, 34, 0.2) 1px, transparent 1px),
+              radial-gradient(circle at 40% 40%, rgba(34, 139, 34, 0.1) 2px, transparent 2px);
+            background-size: 40px 40px, 60px 60px, 80px 80px;
+          }
+          .battle-flash {
+            animation: battleFlash 0.5s ease-in-out;
+          }
+          @keyframes battleFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+          }
+        `}</style>
+
+        {/* Top UI Bar */}
+        <div className="bg-gradient-to-b from-red-800 to-red-900 border-b-4 border-red-400 px-6 py-4 text-center">
+          <h1 className="text-4xl font-bold text-yellow-300 pixel-font mb-2 battle-flash">BATTLE IN PROGRESS</h1>
+          <p className="text-white pixel-font text-sm">
+            Turn {gameState.turn} | Humans {gameState.playerUnits.length} vs {gameState.enemyUnits.length} Orcs
+          </p>
         </div>
 
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Battlefield */}
-            <div className="lg:col-span-2">
-              <div className="bg-surface-primary rounded-xl border border-divider p-6">
-                <h2 className="text-xl font-bold text-primary mb-6 text-center">Battle in Progress</h2>
+        <div className="flex">
+          {/* Battlefield - Full Width */}
+          <div className="flex-1 relative">
+            {/* Grass battlefield */}
+            <div className="h-full min-h-[600px] grass-texture relative">
+              {/* Center divider line */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-2 bg-gradient-to-b from-transparent via-red-500 to-transparent opacity-80"></div>
 
-                {/* Player side */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-primary mb-3 flex items-center">
-                    <div className="w-3 h-3 bg-accent rounded-full mr-2"></div>
-                    Your Army
-                  </h3>
-                  <div className="grid grid-cols-5 gap-2">
-                    {Array.from({ length: 5 }, (_, i) => {
-                      const unit = gameState.playerUnits.find(u => u.position === i);
-                      return (
-                        <div
-                          key={`player-${i}`}
-                          className={`aspect-square border-2 rounded-lg flex flex-col items-center justify-center ${
-                            unit ? 'border-accent bg-accent/10' : 'border-divider'
-                          }`}
-                        >
-                          {unit && (
-                            <div className="text-center">
-                              <div className="text-xs font-bold text-primary">
-                                {UNIT_TYPES[unit.type].name.charAt(0)}
-                              </div>
-                              <div className="text-xs text-success">
-                                ❤️ {unit.health}
-                              </div>
-                            </div>
-                          )}
+              {/* Units on battlefield */}
+              <div className="absolute inset-0 p-8">
+                {/* Player units (left side) */}
+                {gameState.playerUnits.map((unit, index) => {
+                  const baseX = 20 + (index * 15); // Spread across left side
+                  const baseY = 40 + (Math.sin(Date.now() / 1000 + index) * 5); // Slight bobbing
+
+                  return (
+                    <div
+                      key={unit.id}
+                      className="absolute w-16 h-16 transform -translate-x-1/2 -translate-y-1/2 animate-pulse"
+                      style={{
+                        left: `${baseX}%`,
+                        top: `${baseY}%`,
+                      }}
+                    >
+                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 rounded-full border-3 border-blue-300 flex items-center justify-center shadow-lg pixel-border">
+                        <span className="text-3xl animate-bounce">
+                          {unit.type === 'warrior' ? '⚔️' : unit.type === 'archer' ? '🏹' : '🔮'}
+                        </span>
+                      </div>
+                      {/* HP bar */}
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div className="w-12 h-2 bg-gray-700 rounded-full">
+                          <div
+                            className="h-full bg-red-500 rounded-full transition-all duration-500"
+                            style={{ width: `${(unit.health / unit.maxHealth) * 100}%` }}
+                          ></div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="text-center mb-6">
-                  <div className="w-full h-4 bg-divider rounded-full flex items-center justify-center">
-                    <div className="text-xs text-secondary bg-background px-2 py-1 rounded">⚔️ BATTLE ⚔️</div>
-                  </div>
-                </div>
-
-                {/* Enemy side */}
-                <div>
-                  <h3 className="text-lg font-semibold text-primary mb-3 flex items-center">
-                    <div className="w-3 h-3 bg-error rounded-full mr-2"></div>
-                    Enemy Army
-                  </h3>
-                  <div className="grid grid-cols-5 gap-2">
-                    {Array.from({ length: 5 }, (_, i) => {
-                      const unit = gameState.enemyUnits.find(u => u.position === i);
-                      return (
-                        <div
-                          key={`enemy-${i}`}
-                          className={`aspect-square border-2 rounded-lg flex flex-col items-center justify-center ${
-                            unit ? 'border-error bg-error/10' : 'border-divider'
-                          }`}
-                        >
-                          {unit && (
-                            <div className="text-center">
-                              <div className="text-xs font-bold text-primary">
-                                {UNIT_TYPES[unit.type].name.charAt(0)}
-                              </div>
-                              <div className="text-xs text-error">
-                                ❤️ {unit.health}
-                              </div>
-                            </div>
-                          )}
+                      </div>
+                      {/* Damage effects */}
+                      {unit.health < unit.maxHealth && (
+                        <div className="absolute inset-0 pointer-events-none">
+                          <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+                          <div className="absolute top-2 right-2 w-1 h-1 bg-orange-400 rounded-full animate-ping" style={{ animationDelay: '0.2s' }}></div>
                         </div>
-                      );
-                    })}
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Enemy units (right side) */}
+                {gameState.enemyUnits.map((unit, index) => {
+                  const baseX = 80 - (index * 15); // Spread across right side
+                  const baseY = 40 + (Math.sin(Date.now() / 1000 + index + Math.PI) * 5); // Opposite bobbing
+
+                  return (
+                    <div
+                      key={unit.id}
+                      className="absolute w-16 h-16 transform -translate-x-1/2 -translate-y-1/2 animate-pulse"
+                      style={{
+                        left: `${baseX}%`,
+                        top: `${baseY}%`,
+                      }}
+                    >
+                      <div className="w-full h-full bg-gradient-to-br from-red-400 to-red-600 rounded-full border-3 border-red-300 flex items-center justify-center shadow-lg pixel-border">
+                        <span className="text-3xl animate-bounce">
+                          {unit.type === 'warrior' ? '⚔️' : unit.type === 'archer' ? '🏹' : '🐎'}
+                        </span>
+                      </div>
+                      {/* HP bar */}
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div className="w-12 h-2 bg-gray-700 rounded-full">
+                          <div
+                            className="h-full bg-red-500 rounded-full transition-all duration-500"
+                            style={{ width: `${(unit.health / unit.maxHealth) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      {/* Damage effects */}
+                      {unit.health < unit.maxHealth && (
+                        <div className="absolute inset-0 pointer-events-none">
+                          <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+                          <div className="absolute top-2 right-2 w-1 h-1 bg-orange-400 rounded-full animate-ping" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Combat effects */}
+                {gameState.battleLog.length > 0 && gameState.battleLog[gameState.battleLog.length - 1].includes('attacks') && (
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                    <div className="text-6xl animate-bounce text-yellow-400">💥</div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
-            {/* Battle Log */}
-            <div className="bg-surface-primary rounded-xl border border-divider p-6">
-              <h3 className="text-lg font-bold text-primary mb-4">Battle Log</h3>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {gameState.battleLog.slice(-10).map((log, index) => (
-                  <div key={index} className="text-sm text-secondary p-2 bg-surface-secondary rounded">
-                    {log}
+            {/* Bottom battle log */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 to-transparent p-4">
+              <div className="max-w-4xl mx-auto">
+                <div className="bg-black/70 rounded border-2 border-gray-600 p-4 max-h-32 overflow-y-auto">
+                  <h3 className="text-white pixel-font text-sm mb-2">BATTLE LOG</h3>
+                  <div className="space-y-1">
+                    {gameState.battleLog.slice(-5).map((log, index) => (
+                      <div key={index} className="text-green-400 pixel-font text-xs">
+                        {log}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={resetGame}
+                    className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded border-2 border-red-400 font-bold pixel-font transition-colors duration-200"
+                  >
+                    EXIT BATTLE
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -507,50 +715,104 @@ export function BattleGame() {
 
   if (gameState.phase === 'results') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="max-w-md w-full mx-4">
-          <div className="bg-surface-primary rounded-xl border border-divider p-8 text-center">
-            <div className="mb-6">
+      <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black flex items-center justify-center overflow-hidden">
+        {/* Retro pixel styling */}
+        <style jsx>{`
+          .pixel-font {
+            font-family: 'Courier New', monospace;
+            text-shadow: 3px 3px 0px rgba(0,0,0,1);
+            image-rendering: pixelated;
+          }
+          .victory-glow {
+            animation: victoryGlow 2s ease-in-out infinite alternate;
+          }
+          @keyframes victoryGlow {
+            from { text-shadow: 3px 3px 0px rgba(0,0,0,1), 0 0 20px rgba(255,215,0,0.5); }
+            to { text-shadow: 3px 3px 0px rgba(0,0,0,1), 0 0 30px rgba(255,215,0,1); }
+          }
+          .explosion {
+            animation: explosion 1s ease-out;
+          }
+          @keyframes explosion {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(2); opacity: 0; }
+          }
+        `}</style>
+
+        {/* Animated particles background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {Array.from({ length: 20 }, (_, i) => (
+            <div
+              key={i}
+              className="absolute w-4 h-4 bg-yellow-400 rounded-full animate-ping"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${2 + Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="max-w-lg w-full mx-4 relative z-10">
+          <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl border-4 border-yellow-400 p-8 text-center pixel-border shadow-2xl">
+            <div className="mb-8">
               {gameState.winner === 'player' && (
-                <div className="w-20 h-20 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">🏆</span>
+                <div className="relative">
+                  <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 victory-glow border-4 border-yellow-300">
+                    <span className="text-5xl animate-bounce">🏆</span>
+                  </div>
+                  <div className="absolute inset-0 rounded-full border-4 border-yellow-400 animate-ping opacity-20"></div>
                 </div>
               )}
               {gameState.winner === 'enemy' && (
-                <div className="w-20 h-20 bg-error/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">💀</span>
+                <div className="w-24 h-24 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-400">
+                  <span className="text-5xl">💀</span>
                 </div>
               )}
               {gameState.winner === 'draw' && (
-                <div className="w-20 h-20 bg-warning/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">🤝</span>
+                <div className="w-24 h-24 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-gray-400">
+                  <span className="text-5xl">🤝</span>
                 </div>
               )}
 
-              <h1 className="text-2xl font-bold text-primary mb-2">
-                {gameState.winner === 'player' && 'Victory!'}
-                {gameState.winner === 'enemy' && 'Defeat!'}
-                {gameState.winner === 'draw' && 'Draw!'}
+              <h1 className={`text-4xl font-bold mb-4 pixel-font ${
+                gameState.winner === 'player' ? 'text-yellow-300 victory-glow' :
+                gameState.winner === 'enemy' ? 'text-red-400' : 'text-gray-300'
+              }`}>
+                {gameState.winner === 'player' && 'VICTORY!'}
+                {gameState.winner === 'enemy' && 'DEFEAT!'}
+                {gameState.winner === 'draw' && 'DRAW!'}
               </h1>
 
-              <p className="text-secondary">
-                Battle lasted {gameState.turn} turns
-              </p>
+              <div className="bg-black/50 rounded border-2 border-gray-600 p-4 mb-4">
+                <p className="text-green-400 pixel-font text-lg">
+                  Battle lasted {gameState.turn} turns
+                </p>
+                <p className="text-blue-300 pixel-font text-sm">
+                  Humans: {gameState.playerUnits.length} survivors
+                </p>
+                <p className="text-red-300 pixel-font text-sm">
+                  Orcs: {gameState.enemyUnits.length} survivors
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <button
                 onClick={resetGame}
-                className="w-full bg-accent hover:bg-accent-hover text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
+                className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white py-4 px-8 rounded-lg border-2 border-green-400 font-bold pixel-font transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                Play Again
+                🗡️ PLAY AGAIN 🗡️
               </button>
 
               <button
                 onClick={exitToSite}
-                className="w-full bg-surface-secondary hover:bg-surface-primary text-primary py-3 px-6 rounded-lg border border-divider transition-colors duration-200"
+                className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white py-3 px-6 rounded-lg border-2 border-gray-500 font-bold pixel-font transition-colors duration-200"
               >
-                Return to Site
+                EXIT TO SITE
               </button>
             </div>
           </div>
