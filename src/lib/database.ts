@@ -149,7 +149,6 @@ export const db = {
       FROM daily_claims
       WHERE user_id = $1
       AND claim_date >= CURRENT_DATE - INTERVAL '7 days'
-      ORDER BY claim_date DESC
     `, [userId]);
     return parseInt(result.rows[0].streak) || 0;
   },
