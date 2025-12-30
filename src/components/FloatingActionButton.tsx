@@ -19,30 +19,47 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
 
   // Track mouse position to detect if it's over dashboard content area
   useEffect(() => {
-    if (pathname !== '/dashboard') return;
+    if (pathname !== '/dashboard') {
+      setMouseInDashboardArea(false); // Reset when not on dashboard
+      return;
+    }
+
+    let rafId: number;
+    let lastInArea = false;
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Check if mouse is within dashboard content area bounds
-      // Dashboard content area is typically centered with padding
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+      // Cancel previous animation frame
+      if (rafId) cancelAnimationFrame(rafId);
 
-      // Approximate dashboard content area (centered, with margins)
-      const contentLeft = Math.max(16, viewportWidth * 0.05); // 5% margin or 16px min
-      const contentRight = Math.min(viewportWidth - 16, viewportWidth * 0.95);
-      const contentTop = 120; // Below navbar/header area
-      const contentBottom = viewportHeight - 32; // Above bottom margin
+      rafId = requestAnimationFrame(() => {
+        // Check if mouse is within dashboard content area bounds
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
 
-      const inArea = e.clientX >= contentLeft &&
-                     e.clientX <= contentRight &&
-                     e.clientY >= contentTop &&
-                     e.clientY <= contentBottom;
+        // Approximate dashboard content area (centered, with margins)
+        const contentLeft = Math.max(16, viewportWidth * 0.05); // 5% margin or 16px min
+        const contentRight = Math.min(viewportWidth - 16, viewportWidth * 0.95);
+        const contentTop = 120; // Below navbar/header area
+        const contentBottom = viewportHeight - 32; // Above bottom margin
 
-      setMouseInDashboardArea(inArea);
+        const inArea = e.clientX >= contentLeft &&
+                       e.clientX <= contentRight &&
+                       e.clientY >= contentTop &&
+                       e.clientY <= contentBottom;
+
+        // Only update state if it actually changed to prevent unnecessary re-renders
+        if (inArea !== lastInArea) {
+          lastInArea = inArea;
+          setMouseInDashboardArea(inArea);
+        }
+      });
     };
 
     document.addEventListener('mousemove', handleMouseMove);
-    return () => document.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [pathname]);
 
   // Only show glow effect on dashboard when mouse is in content area
