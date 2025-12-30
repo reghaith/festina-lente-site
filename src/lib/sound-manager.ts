@@ -13,17 +13,20 @@ export class SoundManager {
     tank: 'https://audio.jukehost.co.uk/0dVghI1rv5oPtfDZrqRMoYJahT6HXYNW',
     infantry: 'https://audio.jukehost.co.uk/N5AQv7cXxHN3k2DlAdgx63xxiU2eScWj',
     archer: 'https://audio.jukehost.co.uk/MRyBcgo1s8dU12R2Y8gwLpNLjXjzAD5J',
+    setupMusic: 'https://audio.jukehost.co.uk/WdRFuU3KGhxRTHfYJ79y760wAarrzwb8',
     battleMusic: 'https://audio.jukehost.co.uk/rH8Et0GB769OMdUi50zulvi5ZFMKR97T'
   };
 
   /**
-   * Play unit placement sound with overlap prevention
+   * Play unit placement sound with interruption support
    * @param unitType - Type of unit being placed (tank, infantry, or archer)
    */
   playPlacementSound(unitType: 'tank' | 'infantry' | 'archer'): void {
-    // Skip if a placement sound is currently playing
-    if (this.placementSoundPlaying) {
-      return;
+    // Stop the previous placement sound if one is playing
+    if (this.currentPlacementSound) {
+      this.currentPlacementSound.pause();
+      this.currentPlacementSound.currentTime = 0;
+      this.currentPlacementSound = null;
     }
 
     const soundUrl = this.SOUNDS[unitType];
@@ -63,13 +66,40 @@ export class SoundManager {
   }
 
   /**
-   * Start playing background battle music (looped)
+   * Start playing setup phase background music (looped)
    */
-  startBattleMusic(): void {
+  startSetupMusic(): void {
     if (this.backgroundMusic) {
       // Already playing
       return;
     }
+
+    try {
+      this.backgroundMusic = new Audio(this.SOUNDS.setupMusic);
+      this.backgroundMusic.loop = true;
+      this.backgroundMusic.volume = 0.4; // Set to 40% volume so it doesn't overpower
+
+      this.backgroundMusic.addEventListener('error', (e) => {
+        console.error('Error playing setup music:', e);
+        this.backgroundMusic = null;
+      });
+
+      this.backgroundMusic.play().catch(err => {
+        console.error('Failed to play setup music:', err);
+        this.backgroundMusic = null;
+      });
+    } catch (error) {
+      console.error('Error creating setup music:', error);
+    }
+  }
+
+  /**
+   * Start playing background battle music (looped)
+   * Stops any currently playing music first
+   */
+  startBattleMusic(): void {
+    // Stop setup music if it's playing
+    this.stopBattleMusic();
 
     try {
       this.backgroundMusic = new Audio(this.SOUNDS.battleMusic);
