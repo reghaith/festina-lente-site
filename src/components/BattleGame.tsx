@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
@@ -10,30 +10,96 @@ interface Unit {
   health: number;
   maxHealth: number;
   attack: number;
-  x: number; // Grid X position (0-9)
-  y: number; // Grid Y position (0-4)
-  team: 'player' | 'enemy';
+  attackSpeed: number; // Time between attacks in ms
+  speed: number; // Movement speed
+  x: number; // Pixel position
+  y: number; // Pixel position
+  targetX?: number;
+  targetY?: number;
+  team: 'blue' | 'red';
+  lastAttackTime: number;
+  isAttacking: boolean;
 }
 
 interface GameState {
   phase: 'setup' | 'battle' | 'results';
   playerUnits: Unit[];
   enemyUnits: Unit[];
-  turn: number;
+  playerGold: number;
+  enemyGold: number;
   winner: 'player' | 'enemy' | 'draw' | null;
   battleLog: string[];
 }
 
 const UNIT_TYPES = {
-  // Human units (Blue team)
-  soldier: { health: 120, attack: 25, name: 'Soldier', team: 'human', color: '#3b82f6' },
-  wizard: { health: 70, attack: 45, name: 'Wizard', team: 'human', color: '#8b5cf6' },
-  lancer: { health: 90, attack: 30, name: 'Lancer', team: 'human', color: '#06b6d4' },
-  // Orc units (Red team)
-  orc: { health: 130, attack: 22, name: 'Orc', team: 'orc', color: '#22c55e' },
-  rider: { health: 100, attack: 28, name: 'Rider', team: 'orc', color: '#f59e0b' },
-  bear: { health: 160, attack: 20, name: 'Bear', team: 'orc', color: '#84cc16' }
+  // Blue team units
+  soldier: { 
+    health: 100, 
+    attack: 15, 
+    attackSpeed: 1000,
+    speed: 2,
+    name: 'Soldier', 
+    cost: 10,
+    sprite: '/blue_soldier.png',
+    icon: '/icon_sword.png'
+  },
+  archer: { 
+    health: 70, 
+    attack: 25, 
+    attackSpeed: 800,
+    speed: 1.5,
+    name: 'Archer', 
+    cost: 20,
+    sprite: '/blue_soldier.png',
+    icon: '/icon_sword.png'
+  },
+  tank: { 
+    health: 150, 
+    attack: 10, 
+    attackSpeed: 1500,
+    speed: 1,
+    name: 'Tank', 
+    cost: 30,
+    sprite: '/blue_soldier.png',
+    icon: '/icon_sword.png'
+  },
+  // Red team units (same stats for AI)
+  red_soldier: { 
+    health: 100, 
+    attack: 15, 
+    attackSpeed: 1000,
+    speed: 2,
+    name: 'Soldier', 
+    cost: 10,
+    sprite: '/red_soldier.png',
+    icon: '/icon_sword.png'
+  },
+  red_archer: { 
+    health: 70, 
+    attack: 25, 
+    attackSpeed: 800,
+    speed: 1.5,
+    name: 'Archer', 
+    cost: 20,
+    sprite: '/red_soldier.png',
+    icon: '/icon_sword.png'
+  },
+  red_tank: { 
+    health: 150, 
+    attack: 10, 
+    attackSpeed: 1500,
+    speed: 1,
+    name: 'Tank', 
+    cost: 30,
+    sprite: '/red_soldier.png',
+    icon: '/icon_sword.png'
+  }
 };
+
+const BATTLEFIELD_WIDTH = 800;
+const BATTLEFIELD_HEIGHT = 500;
+const UNIT_SIZE = 40;
+const COLLISION_DISTANCE = 45;
 
 export function BattleGame() {
   const { user } = useAuth();
@@ -42,14 +108,17 @@ export function BattleGame() {
     phase: 'setup',
     playerUnits: [],
     enemyUnits: [],
-    turn: 0,
+    playerGold: 100,
+    enemyGold: 100,
     winner: null,
     battleLog: []
   });
 
   const [selectedUnitType, setSelectedUnitType] = useState<keyof typeof UNIT_TYPES | null>(null);
-  const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
   const battlefieldRef = useRef<HTMLDivElement>(null);
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+  const sfxRef = useRef<HTMLAudioElement | null>(null);
 
   // Check if user entered through proper gateway
   useEffect(() => {
@@ -59,74 +128,128 @@ export function BattleGame() {
       router.push('/dashboard');
       return;
     }
+
+    // Initialize audio
+    if (typeof window !== 'undefined') {
+      musicRef.current = new Audio('/soundtrack.mp3');
+      musicRef.current.loop = true;
+      musicRef.current.volume = 0.3;
+      
+      sfxRef.current = new Audio('/sfx_hit.wav');
+      sfxRef.current.volume = 0.5;
+    }
+
+    return () => {
+      if (musicRef.current) {
+        musicRef.current.pause();
+        musicRef.current = null;
+      }
+    };
   }, [router]);
 
-  const isPositionOccupied = (x: number, y: number, team: 'player' | 'enemy') => {
-    const units = team === 'player' ? gameState.playerUnits : gameState.enemyUnits;
-    return units.some(unit => unit.x === x && unit.y === y);
+  // Calculate distance between two points
+  const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
+    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
   };
 
-  const placeUnit = (x: number, y: number) => {
-    if (!selectedUnitType || gameState.playerUnits.length >= 8) return;
-    if (x >= 5 || isPositionOccupied(x, y, 'player')) return; // Left side only (0-4)
+  // Find nearest enemy
+  const findNearestEnemy = (unit: Unit, enemies: Unit[]) => {
+    let nearest = null;
+    let minDistance = Infinity;
 
+    for (const enemy of enemies) {
+      const distance = getDistance(unit.x, unit.y, enemy.x, enemy.y);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = enemy;
+      }
+    }
+
+    return nearest;
+  };
+
+  // Place unit on battlefield
+  const placeUnit = (x: number, y: number) => {
+    if (!selectedUnitType || selectedUnitType.startsWith('red_')) return;
+    
     const unitType = UNIT_TYPES[selectedUnitType];
+    
+    // Check if player has enough gold
+    if (gameState.playerGold < unitType.cost) return;
+    
+    // Check if click is on left side
+    if (x > BATTLEFIELD_WIDTH / 2) return;
+
     const newUnit: Unit = {
-      id: `player_${selectedUnitType}_${Date.now()}`,
+      id: `blue_${Date.now()}_${Math.random()}`,
       type: selectedUnitType,
       health: unitType.health,
       maxHealth: unitType.health,
       attack: unitType.attack,
+      attackSpeed: unitType.attackSpeed,
+      speed: unitType.speed,
       x,
       y,
-      team: 'player'
+      team: 'blue',
+      lastAttackTime: 0,
+      isAttacking: false
     };
 
     setGameState(prev => ({
       ...prev,
-      playerUnits: [...prev.playerUnits, newUnit]
+      playerUnits: [...prev.playerUnits, newUnit],
+      playerGold: prev.playerGold - unitType.cost
     }));
   };
 
   const removeUnit = (unitId: string) => {
+    const unit = gameState.playerUnits.find(u => u.id === unitId);
+    if (!unit) return;
+
+    const unitType = UNIT_TYPES[unit.type];
+    
     setGameState(prev => ({
       ...prev,
-      playerUnits: prev.playerUnits.filter(u => u.id !== unitId)
+      playerUnits: prev.playerUnits.filter(u => u.id !== unitId),
+      playerGold: prev.playerGold + unitType.cost
     }));
   };
 
   const generateEnemyUnits = () => {
     const enemyUnits: Unit[] = [];
-    const enemyTypes: (keyof typeof UNIT_TYPES)[] = ['orc', 'rider', 'bear'];
+    const enemyTypes: (keyof typeof UNIT_TYPES)[] = ['red_soldier', 'red_archer', 'red_tank'];
     
-    // Generate 4-6 random enemy units
-    const numUnits = Math.floor(Math.random() * 3) + 4;
-
-    for (let i = 0; i < numUnits; i++) {
+    // Generate 3-5 random enemy units based on remaining gold
+    let remainingGold = gameState.enemyGold;
+    
+    while (remainingGold >= 10 && enemyUnits.length < 8) {
       const randomType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
       const unitType = UNIT_TYPES[randomType];
+      
+      if (unitType.cost <= remainingGold) {
+        // Random position on right side
+        const x = BATTLEFIELD_WIDTH / 2 + Math.random() * (BATTLEFIELD_WIDTH / 2 - UNIT_SIZE);
+        const y = Math.random() * (BATTLEFIELD_HEIGHT - UNIT_SIZE);
 
-      // Find random position on right side (x: 5-9, y: 0-4)
-      let x, y;
-      let attempts = 0;
-      do {
-        x = Math.floor(Math.random() * 5) + 5; // 5-9
-        y = Math.floor(Math.random() * 5); // 0-4
-        attempts++;
-      } while (isPositionOccupied(x, y, 'enemy') && attempts < 50);
-
-      if (attempts >= 50) continue; // Skip if can't find position
-
-      enemyUnits.push({
-        id: `enemy_${randomType}_${i}`,
-        type: randomType,
-        health: unitType.health,
-        maxHealth: unitType.health,
-        attack: unitType.attack,
-        x,
-        y,
-        team: 'enemy'
-      });
+        enemyUnits.push({
+          id: `red_${Date.now()}_${Math.random()}`,
+          type: randomType,
+          health: unitType.health,
+          maxHealth: unitType.health,
+          attack: unitType.attack,
+          attackSpeed: unitType.attackSpeed,
+          speed: unitType.speed,
+          x,
+          y,
+          team: 'red',
+          lastAttackTime: 0,
+          isAttacking: false
+        });
+        
+        remainingGold -= unitType.cost;
+      } else {
+        break;
+      }
     }
 
     return enemyUnits;
@@ -136,135 +259,182 @@ export function BattleGame() {
     if (gameState.playerUnits.length === 0) return;
 
     const enemyUnits = generateEnemyUnits();
+    
+    // Start background music
+    if (musicRef.current) {
+      musicRef.current.play().catch(() => {});
+    }
+
     setGameState(prev => ({
       ...prev,
       phase: 'battle',
       enemyUnits,
-      battleLog: ['Battle begins!', `Player deploys ${prev.playerUnits.length} units`, `Enemy deploys ${enemyUnits.length} units`]
+      battleLog: ['⚔️ Battle begins!', `🔵 Blue Team: ${prev.playerUnits.length} units`, `🔴 Red Team: ${enemyUnits.length} units`]
     }));
-
-    // Start battle simulation after a brief delay
-    setTimeout(() => runBattle(enemyUnits), 1000);
   };
 
   const resetGame = () => {
+    if (musicRef.current) {
+      musicRef.current.pause();
+      musicRef.current.currentTime = 0;
+    }
+    
     setGameState({
       phase: 'setup',
       playerUnits: [],
       enemyUnits: [],
-      turn: 0,
+      playerGold: 100,
+      enemyGold: 100,
       winner: null,
       battleLog: []
     });
   };
 
-  const runBattle = (enemyUnits: Unit[]) => {
-    let currentPlayerUnits = [...gameState.playerUnits];
-    let currentEnemyUnits = [...enemyUnits];
-    let turn = 0;
-    const log: string[] = ['⚔️ Battle begins!', `🔵 Humans deploy ${currentPlayerUnits.length} units`, `🔴 Orcs deploy ${currentEnemyUnits.length} units`];
+  // Main game loop - runs during battle phase
+  const gameLoop = useCallback(() => {
+    setGameState(prev => {
+      if (prev.phase !== 'battle') return prev;
 
-    const battleInterval = setInterval(() => {
-      turn++;
+      const currentTime = Date.now();
+      let updatedPlayerUnits = [...prev.playerUnits];
+      let updatedEnemyUnits = [...prev.enemyUnits];
+      const newLog = [...prev.battleLog];
 
-      // Player turn
-      if (currentPlayerUnits.length > 0 && currentEnemyUnits.length > 0) {
-        const attacker = currentPlayerUnits[Math.floor(Math.random() * currentPlayerUnits.length)];
-        const target = currentEnemyUnits[Math.floor(Math.random() * currentEnemyUnits.length)];
+      // Update player units
+      updatedPlayerUnits = updatedPlayerUnits.map(unit => {
+        const nearestEnemy = findNearestEnemy(unit, updatedEnemyUnits);
+        
+        if (!nearestEnemy) return unit;
 
-        target.health -= attacker.attack;
-        log.push(`Turn ${turn}: ${UNIT_TYPES[attacker.type].name} ⚔️ ${UNIT_TYPES[target.type].name} (-${attacker.attack} HP)`);
+        const distance = getDistance(unit.x, unit.y, nearestEnemy.x, nearestEnemy.y);
 
-        if (target.health <= 0) {
-          currentEnemyUnits = currentEnemyUnits.filter(u => u.id !== target.id);
-          log.push(`💀 ${UNIT_TYPES[target.type].name} defeated!`);
+        // If close enough, attack
+        if (distance <= COLLISION_DISTANCE) {
+          if (currentTime - unit.lastAttackTime >= unit.attackSpeed) {
+            nearestEnemy.health -= unit.attack;
+            
+            // Play hit sound
+            if (sfxRef.current) {
+              sfxRef.current.currentTime = 0;
+              sfxRef.current.play().catch(() => {});
+            }
+
+            if (nearestEnemy.health <= 0) {
+              newLog.push(`💀 ${UNIT_TYPES[nearestEnemy.type].name} defeated!`);
+            }
+
+            return {
+              ...unit,
+              lastAttackTime: currentTime,
+              isAttacking: true
+            };
+          }
+          return { ...unit, isAttacking: false };
         }
-      }
 
-      // Enemy turn
-      if (currentPlayerUnits.length > 0 && currentEnemyUnits.length > 0) {
-        const attacker = currentEnemyUnits[Math.floor(Math.random() * currentEnemyUnits.length)];
-        const target = currentPlayerUnits[Math.floor(Math.random() * currentPlayerUnits.length)];
+        // Move towards enemy
+        const dx = nearestEnemy.x - unit.x;
+        const dy = nearestEnemy.y - unit.y;
+        const angle = Math.atan2(dy, dx);
 
-        target.health -= attacker.attack;
-        log.push(`Turn ${turn}: ${UNIT_TYPES[attacker.type].name} ⚔️ ${UNIT_TYPES[target.type].name} (-${attacker.attack} HP)`);
+        return {
+          ...unit,
+          x: unit.x + Math.cos(angle) * unit.speed,
+          y: unit.y + Math.sin(angle) * unit.speed,
+          isAttacking: false
+        };
+      });
 
-        if (target.health <= 0) {
-          currentPlayerUnits = currentPlayerUnits.filter(u => u.id !== target.id);
-          log.push(`💀 ${UNIT_TYPES[target.type].name} defeated!`);
+      // Update enemy units
+      updatedEnemyUnits = updatedEnemyUnits.map(unit => {
+        const nearestEnemy = findNearestEnemy(unit, updatedPlayerUnits);
+        
+        if (!nearestEnemy) return unit;
+
+        const distance = getDistance(unit.x, unit.y, nearestEnemy.x, nearestEnemy.y);
+
+        // If close enough, attack
+        if (distance <= COLLISION_DISTANCE) {
+          if (currentTime - unit.lastAttackTime >= unit.attackSpeed) {
+            nearestEnemy.health -= unit.attack;
+            
+            // Play hit sound
+            if (sfxRef.current) {
+              sfxRef.current.currentTime = 0;
+              sfxRef.current.play().catch(() => {});
+            }
+
+            if (nearestEnemy.health <= 0) {
+              newLog.push(`💀 ${UNIT_TYPES[nearestEnemy.type].name} defeated!`);
+            }
+
+            return {
+              ...unit,
+              lastAttackTime: currentTime,
+              isAttacking: true
+            };
+          }
+          return { ...unit, isAttacking: false };
         }
-      }
+
+        // Move towards enemy
+        const dx = nearestEnemy.x - unit.x;
+        const dy = nearestEnemy.y - unit.y;
+        const angle = Math.atan2(dy, dx);
+
+        return {
+          ...unit,
+          x: unit.x + Math.cos(angle) * unit.speed,
+          y: unit.y + Math.sin(angle) * unit.speed,
+          isAttacking: false
+        };
+      });
+
+      // Remove dead units
+      updatedPlayerUnits = updatedPlayerUnits.filter(u => u.health > 0);
+      updatedEnemyUnits = updatedEnemyUnits.filter(u => u.health > 0);
 
       // Check for winner
-      if (currentPlayerUnits.length === 0) {
-        clearInterval(battleInterval);
-        setGameState(prev => ({ ...prev, phase: 'results', winner: 'enemy', battleLog: log, playerUnits: currentPlayerUnits, enemyUnits: currentEnemyUnits }));
-        return;
+      if (updatedPlayerUnits.length === 0 && updatedEnemyUnits.length === 0) {
+        if (musicRef.current) musicRef.current.pause();
+        return { ...prev, phase: 'results', winner: 'draw', battleLog: newLog, playerUnits: updatedPlayerUnits, enemyUnits: updatedEnemyUnits };
+      }
+      if (updatedPlayerUnits.length === 0) {
+        if (musicRef.current) musicRef.current.pause();
+        return { ...prev, phase: 'results', winner: 'enemy', battleLog: newLog, playerUnits: updatedPlayerUnits, enemyUnits: updatedEnemyUnits };
+      }
+      if (updatedEnemyUnits.length === 0) {
+        if (musicRef.current) musicRef.current.pause();
+        return { ...prev, phase: 'results', winner: 'player', battleLog: newLog, playerUnits: updatedPlayerUnits, enemyUnits: updatedEnemyUnits };
       }
 
-      if (currentEnemyUnits.length === 0) {
-        clearInterval(battleInterval);
-        setGameState(prev => ({ ...prev, phase: 'results', winner: 'player', battleLog: log, playerUnits: currentPlayerUnits, enemyUnits: currentEnemyUnits }));
-        return;
-      }
-
-      // Update state for next turn
-      setGameState(prev => ({
+      return {
         ...prev,
-        turn,
-        playerUnits: currentPlayerUnits,
-        enemyUnits: currentEnemyUnits,
-        battleLog: log
-      }));
+        playerUnits: updatedPlayerUnits,
+        enemyUnits: updatedEnemyUnits,
+        battleLog: newLog
+      };
+    });
 
-      // Prevent infinite battles
-      if (turn > 30) {
-        clearInterval(battleInterval);
-        const winner = currentPlayerUnits.length > currentEnemyUnits.length ? 'player' : 
-                       currentEnemyUnits.length > currentPlayerUnits.length ? 'enemy' : 'draw';
-        setGameState(prev => ({ ...prev, phase: 'results', winner, battleLog: [...log, '⏱️ Time limit reached!'], playerUnits: currentPlayerUnits, enemyUnits: currentEnemyUnits }));
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
+  }, []);
+
+  // Start/stop game loop based on phase
+  useEffect(() => {
+    if (gameState.phase === 'battle') {
+      animationFrameRef.current = requestAnimationFrame(gameLoop);
+    } else {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
-    }, 1000);
-  };
+    }
 
-  // Render pixel art sprite for units
-  const renderUnitSprite = (unit: Unit) => {
-    const unitType = UNIT_TYPES[unit.type];
-    const hpPercent = (unit.health / unit.maxHealth) * 100;
-    
-    return (
-      <div className="relative w-full h-full">
-        {/* Unit sprite - pixel art style */}
-        <div 
-          className="w-full h-full pixel-sprite flex items-center justify-center text-2xl font-bold"
-          style={{ 
-            backgroundColor: unitType.color,
-            imageRendering: 'pixelated'
-          }}
-        >
-          {unit.type === 'soldier' && '🛡️'}
-          {unit.type === 'wizard' && '🧙'}
-          {unit.type === 'lancer' && '🗡️'}
-          {unit.type === 'orc' && '👹'}
-          {unit.type === 'rider' && '🐎'}
-          {unit.type === 'bear' && '🐻'}
-        </div>
-        
-        {/* HP bar above unit */}
-        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-12">
-          <div className="h-1 bg-gray-800 border border-black">
-            <div 
-              className="h-full transition-all duration-300"
-              style={{ 
-                width: `${hpPercent}%`,
-                backgroundColor: hpPercent > 60 ? '#22c55e' : hpPercent > 30 ? '#eab308' : '#ef4444'
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [gameState.phase, gameLoop]);
 
   if (gameState.phase === 'battle') {
     return (
@@ -297,63 +467,93 @@ export function BattleGame() {
         `}</style>
 
         {/* Top HUD Bar */}
-        <div className="h-16 bg-gray-900 border-b-4 border-yellow-500 flex items-center justify-between px-8">
+        <div className="h-16 bg-gray-900 border-b-4 border-gray-700 flex items-center justify-between px-8">
           <div className="flex items-center space-x-4">
             <div className="bg-blue-600/80 px-4 py-2 border-2 border-blue-400 pixel-font text-white text-xs">
-              🔵 HUMANS: {gameState.playerUnits.length}
+              BLUE: {gameState.playerUnits.length}
             </div>
           </div>
           
           <div className="text-white pixel-font text-sm">
-            ⚔️ BATTLE PHASE ⚔️
+            BATTLE START
           </div>
           
           <div className="flex items-center space-x-4">
             <div className="bg-red-600/80 px-4 py-2 border-2 border-red-400 pixel-font text-white text-xs">
-              🔴 ORCS: {gameState.enemyUnits.length}
+              RED: {gameState.enemyUnits.length}
             </div>
           </div>
         </div>
 
-        {/* Battlefield Grid */}
-        <div className="relative h-[600px]">
-          <div className="absolute inset-0 flex">
-            {/* Left side - Player territory (cool green) */}
-            <div className="w-1/2 grass-left relative border-r-4 border-yellow-600">
-              {gameState.playerUnits.map((unit) => (
-                <div
-                  key={unit.id}
-                  className="absolute battle-shake"
-                  style={{
-                    left: `${(unit.x * 20) + 10}%`,
-                    top: `${(unit.y * 20) + 10}%`,
-                    width: '60px',
-                    height: '60px'
-                  }}
-                >
-                  {renderUnitSprite(unit)}
-                </div>
-              ))}
-            </div>
+        {/* Battlefield */}
+        <div 
+          ref={battlefieldRef}
+          className="relative mx-auto"
+          style={{ 
+            width: `${BATTLEFIELD_WIDTH}px`, 
+            height: `${BATTLEFIELD_HEIGHT}px`,
+            backgroundImage: 'url(/grass_field.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          {/* Center divider line */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-yellow-600 transform -translate-x-1/2"></div>
+          
+          {/* Left side indicator */}
+          <div className="absolute left-0 top-0 bottom-0 w-1/2 border-r-2 border-yellow-600/30"></div>
+          
+          {/* All units */}
+          {[...gameState.playerUnits, ...gameState.enemyUnits].map((unit) => {
+            const unitType = UNIT_TYPES[unit.type];
+            const hpPercent = (unit.health / unit.maxHealth) * 100;
             
-            {/* Right side - Enemy territory (warm olive) */}
-            <div className="w-1/2 grass-right relative">
-              {gameState.enemyUnits.map((unit) => (
-                <div
-                  key={unit.id}
-                  className="absolute battle-shake"
-                  style={{
-                    left: `${((unit.x - 5) * 20) + 10}%`,
-                    top: `${(unit.y * 20) + 10}%`,
-                    width: '60px',
-                    height: '60px'
+            return (
+              <div
+                key={unit.id}
+                className={`absolute ${unit.isAttacking ? 'battle-shake' : ''}`}
+                style={{
+                  left: `${unit.x}px`,
+                  top: `${unit.y}px`,
+                  width: `${UNIT_SIZE}px`,
+                  height: `${UNIT_SIZE}px`,
+                  transition: 'all 0.1s linear'
+                }}
+              >
+                {/* Unit sprite using actual image */}
+                <img 
+                  src={unitType.sprite}
+                  alt={unitType.name}
+                  className="w-full h-full pixel-sprite"
+                  style={{ imageRendering: 'pixelated' }}
+                  onError={(e) => {
+                    // Fallback to colored square if image not found
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling!.classList.remove('hidden');
                   }}
+                />
+                <div 
+                  className="hidden w-full h-full pixel-sprite flex items-center justify-center text-xl font-bold"
+                  style={{ backgroundColor: unit.team === 'blue' ? '#3b82f6' : '#ef4444' }}
                 >
-                  {renderUnitSprite(unit)}
+                  {unit.team === 'blue' ? '🔵' : '🔴'}
                 </div>
-              ))}
-            </div>
-          </div>
+                
+                {/* HP bar above unit */}
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-10">
+                  <div className="h-1 bg-gray-800 border border-black">
+                    <div 
+                      className="h-full transition-all duration-300"
+                      style={{ 
+                        width: `${hpPercent}%`,
+                        backgroundColor: hpPercent > 60 ? '#22c55e' : hpPercent > 30 ? '#eab308' : '#ef4444'
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Battle Log */}
@@ -417,14 +617,11 @@ export function BattleGame() {
               </h1>
 
               <div className="bg-black/50 rounded border-2 border-gray-600 p-4 mb-4">
-                <p className="text-green-400 pixel-font text-lg">
-                  Battle lasted {gameState.turn} turns
-                </p>
                 <p className="text-blue-300 pixel-font text-sm">
-                  Humans: {gameState.playerUnits.length} survivors
+                  Blue Team: {gameState.playerUnits.length} survivors
                 </p>
                 <p className="text-red-300 pixel-font text-sm">
-                  Orcs: {gameState.enemyUnits.length} survivors
+                  Red Team: {gameState.enemyUnits.length} survivors
                 </p>
               </div>
             </div>
@@ -432,14 +629,7 @@ export function BattleGame() {
             <div className="space-y-4">
               <button
                 onClick={() => {
-                  setGameState({
-                    phase: 'setup',
-                    playerUnits: [],
-                    enemyUnits: [],
-                    turn: 0,
-                    winner: null,
-                    battleLog: []
-                  });
+                  resetGame();
                 }}
                 className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white py-4 px-8 rounded-lg border-2 border-green-400 font-bold pixel-font transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
@@ -508,133 +698,179 @@ export function BattleGame() {
       `}</style>
 
       {/* Top HUD Bar */}
-      <div className="h-16 bg-gray-900 border-b-4 border-yellow-500 flex items-center justify-between px-8">
-        <div className="flex items-center space-x-4">
-          <div className="bg-blue-600/80 px-4 py-2 border-2 border-blue-400 pixel-font text-white text-xs">
-            🛡️ SOLDIER | 🧙 WIZARD | 🗡️ LANCER
-          </div>
+      <div className="h-16 bg-gray-900 border-b-4 border-gray-700 flex items-center justify-between px-8">
+        {/* Left - Blue Team Units */}
+        <div className="flex items-center space-x-2">
+          {(['soldier', 'archer', 'tank'] as const).map((unitType) => {
+            const unit = UNIT_TYPES[unitType];
+            return (
+              <button
+                key={unitType}
+                onClick={() => setSelectedUnitType(unitType)}
+                className={`unit-card w-16 h-16 p-2 flex flex-col items-center justify-center bg-blue-600 ${
+                  selectedUnitType === unitType ? 'selected' : ''
+                }`}
+                disabled={gameState.playerGold < unit.cost}
+              >
+                <img 
+                  src={unit.icon}
+                  alt={unit.name}
+                  className="w-8 h-8"
+                  style={{ imageRendering: 'pixelated' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling!.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden text-2xl">🔵</div>
+                <div className="text-white pixel-font text-xs mt-1">
+                  {unit.cost}
+                </div>
+              </button>
+            );
+          })}
         </div>
         
+        {/* Center - Phase Display */}
         <div className="text-white pixel-font text-sm">
-          ⚔️ SETUP PHASE ⚔️
+          SETUP PHASE
         </div>
         
-        <div className="flex items-center space-x-4">
-          <div className="bg-red-600/80 px-4 py-2 border-2 border-red-400 pixel-font text-white text-xs">
-            👹 ORC | 🐎 RIDER | 🐻 BEAR
-          </div>
+        {/* Right - Red Team Units (preview only) */}
+        <div className="flex items-center space-x-2">
+          {(['red_soldier', 'red_archer', 'red_tank'] as const).map((unitType) => {
+            const unit = UNIT_TYPES[unitType];
+            return (
+              <div
+                key={unitType}
+                className="unit-card w-16 h-16 p-2 flex flex-col items-center justify-center bg-red-600"
+              >
+                <img 
+                  src={unit.icon}
+                  alt={unit.name}
+                  className="w-8 h-8"
+                  style={{ imageRendering: 'pixelated' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling!.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden text-2xl">🔴</div>
+                <div className="text-white pixel-font text-xs mt-1">
+                  {unit.cost}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Unit Selection Panel */}
-      <div className="flex justify-center py-6 space-x-6">
-        {(['soldier', 'wizard', 'lancer'] as const).map((unitType) => {
-          const unit = UNIT_TYPES[unitType];
-          return (
-            <div
-              key={unitType}
-              onClick={() => setSelectedUnitType(unitType)}
-              className={`unit-card w-32 h-40 p-4 flex flex-col items-center justify-center ${
-                selectedUnitType === unitType ? 'selected' : ''
-              }`}
-              style={{ backgroundColor: unit.color }}
-            >
-              <div className="text-4xl mb-2">
-                {unitType === 'soldier' && '🛡️'}
-                {unitType === 'wizard' && '🧙'}
-                {unitType === 'lancer' && '🗡️'}
-              </div>
-              <div className="text-white pixel-font text-xs text-center">
-                {unit.name.toUpperCase()}
-              </div>
-              <div className="text-white pixel-font text-xs mt-2">
-                HP: {unit.health}
-              </div>
-              <div className="text-white pixel-font text-xs">
-                ATK: {unit.attack}
-              </div>
-            </div>
-          );
-        })}
+      {/* Gold Display */}
+      <div className="flex justify-center py-4">
+        <div className="bg-yellow-600/80 px-6 py-2 border-2 border-yellow-400 pixel-font text-white text-sm">
+          GOLD: {gameState.playerGold}
+        </div>
       </div>
 
-      {/* Battlefield Grid */}
-      <div className="relative mx-auto" style={{ width: '800px', height: '400px' }}>
-        <div className="absolute inset-0 flex">
-          {/* Left side - Player territory (cool green) */}
-          <div className="w-1/2 grass-left relative border-r-4 border-yellow-600">
-            <div className="grid grid-cols-5 grid-rows-5 w-full h-full">
-              {Array.from({ length: 5 }).map((_, y) =>
-                Array.from({ length: 5 }).map((_, x) => {
-                  const unit = gameState.playerUnits.find(u => u.x === x && u.y === y);
-                  return (
-                    <div
-                      key={`${x}-${y}`}
-                      className="grid-cell relative"
-                      onClick={() => !unit && placeUnit(x, y)}
-                      onMouseEnter={() => setHoveredCell({ x, y })}
-                      onMouseLeave={() => setHoveredCell(null)}
-                    >
-                      {unit && (
-                        <div 
-                          className="w-full h-full pixel-sprite flex items-center justify-center text-2xl"
-                          style={{ backgroundColor: UNIT_TYPES[unit.type].color }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeUnit(unit.id);
-                          }}
-                        >
-                          {unit.type === 'soldier' && '🛡️'}
-                          {unit.type === 'wizard' && '🧙'}
-                          {unit.type === 'lancer' && '🗡️'}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
+      {/* Battlefield */}
+      <div className="flex justify-center">
+        <div 
+          ref={battlefieldRef}
+          className="relative"
+          style={{ 
+            width: `${BATTLEFIELD_WIDTH}px`, 
+            height: `${BATTLEFIELD_HEIGHT}px`,
+            backgroundImage: 'url(/grass_field.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: '#2D5A27'
+          }}
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            placeUnit(x, y);
+          }}
+        >
+          {/* Center divider line */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-yellow-600 transform -translate-x-1/2"></div>
+          
+          {/* Left side label */}
+          <div className="absolute left-4 top-4 bg-blue-600/80 px-3 py-1 border-2 border-blue-400 pixel-font text-white text-xs">
+            BLUE TEAM
           </div>
           
-          {/* Right side - Enemy territory (warm olive) - Preview */}
-          <div className="w-1/2 grass-right relative flex items-center justify-center">
-            <div className="text-gray-800 pixel-font text-xs text-center opacity-50">
-              ENEMY UNITS<br/>WILL SPAWN HERE
-            </div>
+          {/* Right side label */}
+          <div className="absolute right-4 top-4 bg-red-600/80 px-3 py-1 border-2 border-red-400 pixel-font text-white text-xs">
+            RED TEAM
           </div>
+          
+          {/* Player units */}
+          {gameState.playerUnits.map((unit) => {
+            const unitType = UNIT_TYPES[unit.type];
+            return (
+              <div
+                key={unit.id}
+                className="absolute cursor-pointer hover:scale-110 transition-transform"
+                style={{
+                  left: `${unit.x}px`,
+                  top: `${unit.y}px`,
+                  width: `${UNIT_SIZE}px`,
+                  height: `${UNIT_SIZE}px`
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeUnit(unit.id);
+                }}
+              >
+                <img 
+                  src={unitType.sprite}
+                  alt={unitType.name}
+                  className="w-full h-full pixel-sprite"
+                  style={{ imageRendering: 'pixelated' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling!.classList.remove('hidden');
+                  }}
+                />
+                <div 
+                  className="hidden w-full h-full pixel-sprite flex items-center justify-center text-2xl"
+                  style={{ backgroundColor: '#3b82f6' }}
+                >
+                  🔵
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Bottom Controls */}
       <div className="flex justify-center mt-8 space-x-6">
-        <div className="bg-blue-600/80 px-6 py-3 border-2 border-blue-400 pixel-font text-white text-xs">
-          UNITS: {gameState.playerUnits.length}/8
-        </div>
-        
         <button
           onClick={startBattle}
           disabled={gameState.playerUnits.length === 0}
-          className={`px-8 py-3 border-4 pixel-font text-sm transition-all duration-200 ${
+          className={`px-12 py-4 border-4 pixel-font text-lg transition-all duration-200 ${
             gameState.playerUnits.length === 0
               ? 'bg-gray-600 text-gray-400 border-gray-500 cursor-not-allowed'
               : 'bg-green-600 hover:bg-green-500 text-white border-green-400 shadow-lg hover:shadow-xl transform hover:scale-105'
           }`}
         >
-          START BATTLE!
+          START
         </button>
 
         <button
           onClick={resetGame}
-          className="px-8 py-3 bg-red-600 hover:bg-red-500 text-white border-4 border-red-400 pixel-font text-sm transition-colors duration-200"
+          className="px-12 py-4 bg-red-600 hover:bg-red-500 text-white border-4 border-red-400 pixel-font text-lg transition-colors duration-200"
         >
-          CLEAR ALL
+          RESET
         </button>
       </div>
 
       {/* Instructions */}
       <div className="text-center mt-6">
         <p className="text-gray-400 pixel-font text-xs">
-          SELECT A UNIT TYPE, THEN CLICK ON THE LEFT BATTLEFIELD TO PLACE IT
+          SELECT A UNIT FROM THE TOP BAR, THEN CLICK ON THE LEFT SIDE TO PLACE IT. CLICK UNITS TO REMOVE THEM.
         </p>
       </div>
     </div>
