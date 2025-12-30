@@ -13,6 +13,7 @@ export class SoundManager {
     tank: 'https://audio.jukehost.co.uk/0dVghI1rv5oPtfDZrqRMoYJahT6HXYNW',
     infantry: 'https://audio.jukehost.co.uk/N5AQv7cXxHN3k2DlAdgx63xxiU2eScWj',
     archer: 'https://audio.jukehost.co.uk/MRyBcgo1s8dU12R2Y8gwLpNLjXjzAD5J',
+    setupMusic: 'https://audio.jukehost.co.uk/WdRFuU3KGhxRTHfYJ79y760wAarrzwb8',
     battleMusic: 'https://audio.jukehost.co.uk/rH8Et0GB769OMdUi50zulvi5ZFMKR97T'
   };
 
@@ -65,13 +66,40 @@ export class SoundManager {
   }
 
   /**
-   * Start playing background battle music (looped)
+   * Start playing setup phase background music (looped)
    */
-  startBattleMusic(): void {
+  startSetupMusic(): void {
     if (this.backgroundMusic) {
       // Already playing
       return;
     }
+
+    try {
+      this.backgroundMusic = new Audio(this.SOUNDS.setupMusic);
+      this.backgroundMusic.loop = true;
+      this.backgroundMusic.volume = 0.4; // Set to 40% volume so it doesn't overpower
+
+      this.backgroundMusic.addEventListener('error', (e) => {
+        console.error('Error playing setup music:', e);
+        this.backgroundMusic = null;
+      });
+
+      this.backgroundMusic.play().catch(err => {
+        console.error('Failed to play setup music:', err);
+        this.backgroundMusic = null;
+      });
+    } catch (error) {
+      console.error('Error creating setup music:', error);
+    }
+  }
+
+  /**
+   * Start playing background battle music (looped)
+   * Stops any currently playing music first
+   */
+  startBattleMusic(): void {
+    // Stop setup music if it's playing
+    this.stopBattleMusic();
 
     try {
       this.backgroundMusic = new Audio(this.SOUNDS.battleMusic);

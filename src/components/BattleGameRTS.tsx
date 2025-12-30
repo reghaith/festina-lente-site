@@ -345,7 +345,11 @@ export function BattleGameRTS() {
     return enemyUnits;
   };
 
-  const startGame = () => setGameState(prev => ({ ...prev, phase: 'setup' }));
+  const startGame = () => {
+    // Start setup phase music
+    soundManager.startSetupMusic();
+    setGameState(prev => ({ ...prev, phase: 'setup' }));
+  };
   
   const startBattle = () => {
     if (gameState.playerUnits.length === 0) return;
