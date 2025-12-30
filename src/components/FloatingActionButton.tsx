@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
+import { usePathname } from 'next/navigation';
 
 interface FloatingActionButtonProps {
   onClick: () => void;
@@ -10,9 +11,13 @@ interface FloatingActionButtonProps {
 
 export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonProps) {
   const { user } = useAuth();
+  const pathname = usePathname();
 
   // Only show for authenticated users
   if (!user) return null;
+
+  // Only show glow effect on dashboard
+  const showGlow = pathname === '/dashboard';
 
   return (
     <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-40">
@@ -60,8 +65,10 @@ export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonPr
           </svg>
         </div>
 
-        {/* Subtle glow effect on hover */}
-        <div className="absolute inset-0 rounded-full bg-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        {/* Subtle glow effect on hover - only on dashboard */}
+        {showGlow && (
+          <div className="absolute inset-0 rounded-full bg-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        )}
       </button>
 
       {/* Tooltip */}
