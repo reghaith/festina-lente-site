@@ -129,14 +129,14 @@ export function DailyLoginDrawer({ isOpen, onClose }: DailyLoginDrawerProps) {
               Daily
             </button>
             <button
-              onClick={() => setActiveTab('achievements')}
+              onClick={() => setActiveTab('battle')}
               className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
-                activeTab === 'achievements'
+                activeTab === 'battle'
                   ? 'text-accent border-b-2 border-accent bg-surface-secondary'
                   : 'text-secondary hover:text-primary hover:bg-surface-secondary'
               }`}
             >
-              Achievements
+              Battle
             </button>
           </div>
 
@@ -235,13 +235,49 @@ export function DailyLoginDrawer({ isOpen, onClose }: DailyLoginDrawerProps) {
               </div>
             )}
 
-            {activeTab === 'achievements' && (
-              <div className="text-center py-12">
-                <svg className="w-16 h-16 text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <h3 className="text-lg font-bold text-primary mb-2">Coming Soon</h3>
-                <p className="text-secondary text-sm">Achievement system will be available soon!</p>
+            {activeTab === 'battle' && (
+              <div className="space-y-6">
+                {/* Battle Simulator Card */}
+                <div className="bg-surface-primary rounded-xl border border-divider p-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </div>
+
+                    <h3 className="text-lg font-bold text-primary mb-2">Battle Simulator</h3>
+                    <p className="text-secondary text-sm mb-6">
+                      Set up your army and watch the battle unfold. Strategic unit placement and timing are key to victory!
+                    </p>
+
+                    <button
+                      onClick={() => {
+                        // Set gateway flag and navigate to battle
+                        sessionStorage.setItem('battleEnteredViaGateway', 'true');
+                        window.location.href = '/battle';
+                      }}
+                      className="w-full bg-success hover:bg-success text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
+                      Enter Battle Setup
+                    </button>
+
+                    <div className="mt-4 text-xs text-muted">
+                      ⚔️ Turn-based tactical combat ⚔️
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Rules */}
+                <div className="bg-surface-primary rounded-xl border border-divider p-4">
+                  <h4 className="text-sm font-semibold text-primary mb-2">Quick Rules</h4>
+                  <ul className="text-xs text-secondary space-y-1">
+                    <li>• Place up to 5 units on your side</li>
+                    <li>• Choose from Warriors, Archers, or Mages</li>
+                    <li>• Battle runs automatically once started</li>
+                    <li>• First to eliminate all enemy units wins</li>
+                  </ul>
+                </div>
               </div>
             )}
           </div>
