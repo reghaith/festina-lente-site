@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import Navbar from '@/components/Navbar';
+import { ExpDisplay } from '@/components/ExpDisplay';
 
 export default function DashboardPage() {
   const { user, loading, signOut } = useAuth();
@@ -67,23 +68,8 @@ export default function DashboardPage() {
             </h1>
             <p className="text-secondary">Track your earnings and manage your account</p>
           </div>
-          {/* Welcome Section */}
-          <div className="bg-surface-primary rounded-xl shadow-xl border border-divider p-6 mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-primary">Welcome back, {user.name || user.email?.split('@')[0] || 'User'}! 👋</h2>
-                <p className="text-secondary">Ready to earn more today? Check out your progress below.</p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-success">
-                  {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef
-                </div>
-                <div className="text-sm text-muted">
-                  Available balance
-                </div>
-              </div>
-            </div>
-          </div>
+           {/* EXP Display - Mandatory UI Structure */}
+           <ExpDisplay />
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Points Balance Card */}

@@ -24,7 +24,8 @@ export const TABLES = {
   USERS: 'users',
   SURVEYS: 'surveys',
   OFFERS: 'offers',
-  TRANSACTIONS: 'transactions'
+  TRANSACTIONS: 'transactions',
+  USER_EXP: 'user_exp'
 }
 
 // User authentication functions
@@ -74,6 +75,61 @@ export const db = {
       [email, passwordHash, name]
     )
     return result.rows[0]
+  },
+
+  // EXP-related functions
+  async getUserExp(userId: string) {
+    const result = await this.query(`
+      SELECT total_exp, current_level, exp_to_next_level, last_exp_change_reason, last_updated
+      FROM user_exp
+      WHERE user_id = $1
+    `, [userId]);
+    return result.rows[0];
+  },
+
+  async createUserExp(userId: string) {
+    const result = await this.query(`
+      INSERT INTO user_exp (user_id, total_exp, current_level, exp_to_next_level)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (user_id) DO NOTHING
+      RETURNING *
+    `, [userId, 0, 1, 100]);
+    return result.rows[0];
+  },
+
+  async updateUserExp(userId: string, expChange: number, reason: string) {
+    // First ensure user has an EXP record
+    await this.createUserExp(userId);
+
+    // Get current EXP
+    const currentExp = await this.getUserExp(userId);
+    const newTotalExp = (currentExp?.total_exp || 0) + expChange;
+
+    // Calculate new level (level = floor(total_exp / 100))
+    const newLevel = Math.floor(newTotalExp / 100) + 1;
+    const expToNextLevel = (newLevel * 100) - newTotalExp;
+
+    // Update EXP record
+    const result = await this.query(`
+      UPDATE user_exp
+      SET total_exp = $2,
+          current_level = $3,
+          exp_to_next_level = $4,
+          last_exp_change_reason = $5,
+          last_updated = CURRENT_TIMESTAMP
+      WHERE user_id = $1
+      RETURNING *
+    `, [userId, newTotalExp, newLevel, expToNextLevel, reason]);
+
+    return result.rows[0];
+  },
+
+  async getUserExpWithFallback(userId: string) {
+    let expData = await this.getUserExp(userId);
+    if (!expData) {
+      expData = await this.createUserExp(userId);
+    }
+    return expData;
   }
 }
 

@@ -103,6 +103,20 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create user_exp table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS user_exp (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        total_exp INTEGER DEFAULT 0,
+        current_level INTEGER DEFAULT 1,
+        exp_to_next_level INTEGER DEFAULT 100,
+        last_exp_change_reason VARCHAR(255),
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Create indexes (these will not error if they already exist)
     try {
       await db.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
@@ -114,6 +128,7 @@ async function initializeDatabase() {
       await db.query(`CREATE INDEX IF NOT EXISTS idx_cpx_completions_survey_id ON cpx_survey_completions(survey_id)`);
       await db.query(`CREATE INDEX IF NOT EXISTS idx_withdrawal_requests_user_id ON withdrawal_requests(user_id)`);
       await db.query(`CREATE INDEX IF NOT EXISTS idx_withdrawal_requests_status ON withdrawal_requests(status)`);
+      await db.query(`CREATE INDEX IF NOT EXISTS idx_user_exp_user_id ON user_exp(user_id)`);
     } catch (indexError) {
       console.log('⚠️ Some indexes may already exist, continuing...');
     }

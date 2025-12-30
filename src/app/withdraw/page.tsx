@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useDarkMode } from '@/lib/dark-mode';
 import Navbar from '@/components/Navbar';
+import { ExpDisplay } from '@/components/ExpDisplay';
 
 interface WithdrawalMethod {
   id: string;
@@ -179,23 +180,8 @@ export default function WithdrawPage() {
             <p className="text-secondary">Cash out your earnings to your preferred payment method</p>
           </div>
 
-          {/* Balance Card */}
-          <div className="bg-surface-primary rounded-xl shadow-xl border border-divider p-6 mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-primary">Available Balance</h2>
-                <p className="text-secondary">Points you can withdraw</p>
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-success">
-                  {loadingBalance ? '...' : userBalance.available_balance.toFixed(0)} ef
-                </div>
-                <div className="text-sm text-muted">
-                  Available to withdraw
-                </div>
-              </div>
-            </div>
-          </div>
+           {/* EXP Display - Mandatory UI Structure */}
+           <ExpDisplay />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Withdrawal Methods */}

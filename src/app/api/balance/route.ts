@@ -26,6 +26,9 @@ export async function GET(request: NextRequest) {
       total_earned: 0
     };
 
+    // Get user EXP data
+    const expData = await db.getUserExpWithFallback(userId);
+
     // Get recent transactions
     const transactionsResult = await db.query(`
       SELECT type, amount, status, created_at
@@ -38,6 +41,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       balance,
+      exp: expData,
       transactions: transactionsResult.rows
     });
 

@@ -38,17 +38,22 @@ export async function POST(request: NextRequest) {
           updated_at = CURRENT_TIMESTAMP
       `, [userId, pointsEarned, pointsEarned]);
 
-      // Record transaction
-      await db.query(`
-        INSERT INTO transactions (user_id, type, amount, status)
-        VALUES ($1, 'survey_completion', $2, 'completed')
-      `, [userId, pointsEarned]);
+       // Record transaction
+       await db.query(`
+         INSERT INTO transactions (user_id, type, amount, status)
+         VALUES ($1, 'survey_completion', $2, 'completed')
+       `, [userId, pointsEarned]);
 
-      return NextResponse.json({
-        success: true,
-        message: 'Survey completion recorded and balance updated',
-        pointsEarned
-      });
+       // Grant EXP for survey completion
+       const expEarned = 50; // EXP for completing a survey
+       await db.updateUserExp(userId, expEarned, 'Survey completion');
+
+       return NextResponse.json({
+         success: true,
+         message: 'Survey completion recorded, balance updated, and EXP granted',
+         pointsEarned,
+         expEarned
+       });
 
     } catch (error) {
       console.error('Database operation failed:', error);
