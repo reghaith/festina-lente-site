@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
 import { usePathname } from 'next/navigation';
 
@@ -12,12 +12,41 @@ interface FloatingActionButtonProps {
 export function FloatingActionButton({ onClick, isOpen }: FloatingActionButtonProps) {
   const { user } = useAuth();
   const pathname = usePathname();
+  const [mouseInDashboardArea, setMouseInDashboardArea] = useState(false);
 
   // Only show for authenticated users
   if (!user) return null;
 
-  // Only show glow effect on dashboard
-  const showGlow = pathname === '/dashboard';
+  // Track mouse position to detect if it's over dashboard content area
+  useEffect(() => {
+    if (pathname !== '/dashboard') return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Check if mouse is within dashboard content area bounds
+      // Dashboard content area is typically centered with padding
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      // Approximate dashboard content area (centered, with margins)
+      const contentLeft = Math.max(16, viewportWidth * 0.05); // 5% margin or 16px min
+      const contentRight = Math.min(viewportWidth - 16, viewportWidth * 0.95);
+      const contentTop = 120; // Below navbar/header area
+      const contentBottom = viewportHeight - 32; // Above bottom margin
+
+      const inArea = e.clientX >= contentLeft &&
+                     e.clientX <= contentRight &&
+                     e.clientY >= contentTop &&
+                     e.clientY <= contentBottom;
+
+      setMouseInDashboardArea(inArea);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, [pathname]);
+
+  // Only show glow effect on dashboard when mouse is in content area
+  const showGlow = pathname === '/dashboard' && mouseInDashboardArea;
 
   return (
     <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-40">
